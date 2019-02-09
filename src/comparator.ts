@@ -1,7 +1,7 @@
 import { newPlayer, Player, PlayerClassType, PlayerType } from '@epiclabs/epic-video-player';
 
 import { IComparatorConfig, IPlayerData } from './models';
-import { PidController } from './PidController';
+import { PidController } from './pid-controller';
 
 export class Comparator {
     private static LIBRARY_PREFIX = 'evc-';
@@ -161,14 +161,10 @@ export class Comparator {
     }
 
     private setPidController() {
-        this.pidController = new PidController(0.5, 0.1, 0.1);
-        if (this.leftPlayer.playerType === PlayerType.HLS && this.rightPlayer.playerType === PlayerType.DASH) {
-            this.pidController.setTarget(Comparator.PID_DIFF_OFFSET);
-        } else if (this.leftPlayer.playerType === PlayerType.DASH && this.rightPlayer.playerType === PlayerType.HLS) {
-            this.pidController.setTarget(-Comparator.PID_DIFF_OFFSET);
-        } else {
-            this.pidController.setTarget(0);
-        }
+        const target = this.leftPlayer.playerType === this.rightPlayer.playerType ? 0 :
+            Comparator.PID_DIFF_OFFSET;
+
+        this.pidController = new PidController(0.5, 0.1, 0.1, target);
     }
 
     private showSpinner(): void {
@@ -184,7 +180,7 @@ export class Comparator {
      */
 
     private initListeners(): void {
-        this.leftPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayTrhough('left');
+        this.leftPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('left');
         this.leftPlayer.htmlPlayer.onended = () => this.onEnded();
         this.leftPlayer.htmlPlayer.onloadstart = () => this.onLoadStart();
         this.leftPlayer.htmlPlayer.onpause = () => this.onPause();
@@ -193,7 +189,7 @@ export class Comparator {
         this.leftPlayer.htmlPlayer.onseeking = () => this.onSeeking();
         this.leftPlayer.htmlPlayer.ontimeupdate = () => this.onTimeUpdate();
 
-        this.rightPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayTrhough('right');
+        this.rightPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('right');
         this.rightPlayer.htmlPlayer.onended = () => this.onEnded();
         this.leftPlayer.htmlPlayer.onpause = () => this.onPause();
         this.leftPlayer.htmlPlayer.onplay = () => this.onPlay();
@@ -225,7 +221,7 @@ export class Comparator {
         window.addEventListener('resize', (event) => this.resizePlayers());
     }
 
-    private onCanPlayTrhough(player: 'left' | 'right') {
+    private onCanPlayThrough(player: 'left' | 'right') {
         if (!this.leftPlayerData.isInitialized || !this.rightPlayerData.isInitialized) {
             if (player === 'left') {
                 this.leftPlayerData.isInitialized = true;
