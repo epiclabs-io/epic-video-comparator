@@ -8,7 +8,7 @@
     "_clean": "rimraf dist",
     "_transpile": "tsc",
     "_bundle": "webpack",
-    "_styles": "sass src/**/*.scss dist/index.css",
+    "_styles": "sass src/styles/index.scss dist/index.css",
     "_npm_ready": "cp-cli CHANGELOG.md ./dist/CHANGELOG.md && cp-cli LICENSE ./dist/LICENSE && cp-cli package.json ./dist/package.json && cp-cli README.md ./dist/README.md && cp-cli demo.html ./dist/demo.html",
     "build": "run-s _clean _bundle _transpile _styles _npm_ready",
     "_lint": "tslint -c tslint.json 'src/**/*.ts'",

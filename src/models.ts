@@ -1,11 +1,14 @@
+import { IPlayerConfig } from '@epiclabs/epic-video-player';
+
 export interface IComparatorConfig {
     leftUrl: string;
     loop?: boolean;
     rightUrl: string;
-    renderMediaControls?: boolean;
+    mediaControls?: boolean;
 }
 
 export interface IPlayerData {
-    isInitialized: boolean;
-    duration: number;
+    config?: IPlayerConfig;
+    duration?: number;
+    isInitialized?: boolean;
 }

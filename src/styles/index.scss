@@ -8,7 +8,6 @@ $splitter-color: '#ffffff';
 .#{$library-prefix}container {
     position: relative;
     margin: 0 auto;
-    max-height: calc(100vh - 60px) !important;
     background-color: black;
 
     &.loaded-metadata {
@@ -17,6 +16,48 @@ $splitter-color: '#ffffff';
         .#{$library-prefix}wrapper {
             .#{$library-prefix}left-video-wrapper {
                 border-right: 2px dashed #{$splitter-color};
+            }
+        }
+    }
+
+    .#{$library-prefix}quality-selector-popup {
+        z-index: 2;
+        padding: 10px;
+        position: absolute;
+        grid-gap: 10px;
+        bottom: 55px;
+        right: 6px;
+        color: white;
+        display: grid;
+        background-color: rgba(1,1,1,.7);
+        grid-template-columns: 1fr 1fr;
+        font-family: monospace;
+        transform: scale(.0000001);
+        transition: transform .2s ease-out;
+
+        p {
+            margin: 0;
+            border-bottom: 1px dashed white;
+        }
+
+        &.visible {
+            transform: scale(1);
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+
+            li.current {
+                color: #{$hightlight-color-1};
+            }
+
+            li:not(.current) {
+                cursor: pointer;
+                &:hover {
+                    color: #{$hightlight-color-2};
+                }
             }
         }
     }
@@ -100,7 +141,7 @@ $splitter-color: '#ffffff';
         padding: 10px;
         display: grid;
         grid-column-gap: 10px;
-        grid-template-columns: 24px 24px 1fr 24px;
+        grid-template-columns: 24px 24px 1fr 24px 24px;
         align-items: center;
 
         .#{$library-prefix}play-pause {
@@ -113,11 +154,11 @@ $splitter-color: '#ffffff';
             transition: .2s all ease;
             cursor: pointer;
         
-            // play state
+            // paused state
             border-style: solid;
             border-width: 12px 0 12px 18px;
         
-            // pause state
+            // playing state
             &.playing {
                 border-style: double;
                 border-width: 0 0 0 18px;
@@ -149,7 +190,7 @@ $splitter-color: '#ffffff';
                 }
             }
 
-            div {
+            & > div {
                 transition: .2s all ease;
                 position: absolute;
                 border-style: solid;
@@ -172,6 +213,34 @@ $splitter-color: '#ffffff';
                 height: 100%;
                 background-color: #{$hightlight-color-1};
                 position: absolute;
+            }
+        }
+
+        .#{$library-prefix}quality-icon {
+            position: relative;
+            width: 12px;
+            height: 12px;
+            margin-bottom: 4px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 4px solid #{$dark-color};
+
+            &:hover, &.active {
+                border-color: #{$hightlight-color-1};
+                &:before {
+                    background: #{$hightlight-color-1};
+                }
+            }
+            
+            &:before {
+                content: "";
+                position: absolute;
+                width: 4px;
+                height: 15px;
+                background: #{$dark-color};
+                bottom: -9px;
+                right: -3px;
+                transform: rotate(-45deg);
             }
         }
 

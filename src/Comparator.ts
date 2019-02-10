@@ -1,4 +1,4 @@
-import { newPlayer, Player, PlayerClassType, PlayerType } from '@epiclabs/epic-video-player';
+import { IRendition, newPlayer, Player, PlayerClassType, PlayerType } from '@epiclabs/epic-video-player';
 
 import { IComparatorConfig, IPlayerData } from './models';
 import { PidController } from './PidController';
@@ -6,10 +6,12 @@ import { PidController } from './PidController';
 export class Comparator {
     private static LIBRARY_PREFIX = 'evc-';
     private static PID_DIFF_OFFSET = 0.06917999999999935;
+    private static MAX_QUALITY_INDEX = 9999;
+    private static MAX_QUALITY_KBPS = 9999999;
     public leftPlayer: Player<PlayerClassType>;
-    public rightPlayer;
-    private leftPlayerData: IPlayerData;
-    private rightPlayerData: IPlayerData;
+    public rightPlayer: Player<PlayerClassType>;
+    private leftPlayerData: IPlayerData = {};
+    private rightPlayerData: IPlayerData = {};
     private isSplitterSticked = true;
     private pidController: PidController;
 
@@ -92,13 +94,11 @@ export class Comparator {
 
         this.container.appendChild(this.createLoadingSpinner());
         this.container.appendChild(wrapper);
-        if (this.config.renderMediaControls !== false) {
-            this.container.appendChild(this.createMediaControls());
-        }
+        this.container.appendChild(this.createMediaControls());
         this.container.classList.add(`${Comparator.LIBRARY_PREFIX}container`);
 
-        this.leftPlayer = newPlayer(this.config.leftUrl, leftVideoWrapper.getElementsByTagName('video')[0], undefined);
-        this.rightPlayer = newPlayer(this.config.rightUrl, rightVideoWrapper.getElementsByTagName('video')[0], undefined);
+        this.leftPlayer = newPlayer(this.config.leftUrl, leftVideoWrapper.getElementsByTagName('video')[0], this.leftPlayerData.config);
+        this.rightPlayer = newPlayer(this.config.rightUrl, rightVideoWrapper.getElementsByTagName('video')[0], this.rightPlayerData.config);
     }
 
     private createVideoPlayer(player: 'left' | 'right'): HTMLDivElement {
@@ -120,14 +120,20 @@ export class Comparator {
     }
 
     private createMediaControls(): HTMLDivElement {
+        if (this.config.mediaControls === false) {
+            return;
+        }
+
         const controls = document.createElement('div');
         controls.className = `${Comparator.LIBRARY_PREFIX}media-controls`;
 
+        // play pause button
         const playPause = document.createElement('div');
         playPause.className = `${Comparator.LIBRARY_PREFIX}play-pause`;
         playPause.onclick = () => this.togglePlayPause();
         controls.appendChild(playPause);
 
+        // reload button
         const reload = document.createElement('div');
         reload.className = `${Comparator.LIBRARY_PREFIX}reload`;
         reload.title = 'Reload';
@@ -135,6 +141,7 @@ export class Comparator {
         reload.appendChild(document.createElement('div'));
         controls.appendChild(reload);
 
+        // seekbar
         const seekBar = document.createElement('div');
         seekBar.className = `${Comparator.LIBRARY_PREFIX}seek-bar`;
         seekBar.onclick = ($event) => this.seekInner($event);
@@ -143,6 +150,19 @@ export class Comparator {
         seekBar.appendChild(seekBarInner);
         controls.appendChild(seekBar);
 
+        // quality selector popup
+        const qualitySelectorPopup = document.createElement('div');
+        qualitySelectorPopup.className = `${Comparator.LIBRARY_PREFIX}quality-selector-popup`;
+        this.container.appendChild(qualitySelectorPopup);
+
+        // quality selector button
+        const qualitySelectorIcon = document.createElement('div');
+        qualitySelectorIcon.className = `${Comparator.LIBRARY_PREFIX}quality-icon`;
+        qualitySelectorIcon.title = 'Quality selector';
+        qualitySelectorIcon.onclick = ($event) => this.onQualityIconClick($event, qualitySelectorIcon, qualitySelectorPopup);
+        controls.appendChild(qualitySelectorIcon);
+
+        // fullscreen button
         const fullScreen = document.createElement('div');
         fullScreen.className = `${Comparator.LIBRARY_PREFIX}full-screen`;
         fullScreen.title = 'Full screen';
@@ -152,8 +172,25 @@ export class Comparator {
         return controls;
     }
 
+    private onQualityIconClick($event: MouseEvent, icon: HTMLDivElement, popup: HTMLDivElement): void {
+        popup.classList.toggle('visible');
+        icon.classList.toggle('active');
+    }
+
     private setInitialValues() {
-        this.leftPlayerData = this.rightPlayerData = {
+        this.leftPlayerData = {
+            config: this.leftPlayerData.config || {
+                initialRenditionIndex: Comparator.MAX_QUALITY_INDEX,
+                initialRenditionKbps: Comparator.MAX_QUALITY_KBPS,
+            },
+            duration: undefined,
+            isInitialized: false,
+        };
+        this.rightPlayerData = {
+            config: this.rightPlayerData.config || {
+                initialRenditionIndex: Comparator.MAX_QUALITY_INDEX,
+                initialRenditionKbps: Comparator.MAX_QUALITY_KBPS,
+            },
             duration: undefined,
             isInitialized: false,
         };
@@ -179,12 +216,63 @@ export class Comparator {
         this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}loading-spinner`)[0].classList.add('hidden');
     }
 
+    private populateQualitySelector(): void {
+        const popup = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}quality-selector-popup`)[0];
+
+        if (popup.childNodes.length === 2) {
+            return;
+        }
+
+        while (popup.firstChild) {
+            popup.removeChild(popup.firstChild);
+        }
+
+        this.populateQualitySelectorSide('left', popup as HTMLDivElement);
+        this.populateQualitySelectorSide('right', popup as HTMLDivElement);
+        this.resizePlayers();
+    }
+
+    private populateQualitySelectorSide(side: 'left' |'right', popup: HTMLDivElement) {
+        const renditions: IRendition[] = side === 'left' ? this.leftPlayer.getRenditions() : this.rightPlayer.getRenditions();
+        const currentRendition = side === 'left' ? this.leftPlayer.getCurrentRendition() : this.rightPlayer.getCurrentRendition();
+        const sideElementList = document.createElement('ul');
+
+        if (!renditions) {
+            return;
+        }
+
+        for (const rendition of renditions) {
+            const current = rendition.bitrate === currentRendition.bitrate;
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `${ rendition.width }x${ rendition.height } (${ Math.round(rendition.bitrate / 1000) } kbps)`;
+            listItem.className = current ? 'current' : '';
+            listItem.onclick = () => this.setRendition(rendition.level, rendition.bitrate, side);
+            sideElementList.appendChild(listItem);
+        }
+
+        const sideElement = document.createElement('div');
+        sideElement.innerHTML  = `<p><b>${ side.toUpperCase() }</b></p>`;
+        sideElement.appendChild(sideElementList);
+        popup.appendChild(sideElement);
+    }
+
+    private setRendition(index: number, bitrate: number, player: 'left' | 'right'): void {
+        if (player === 'left') {
+            this.leftPlayerData.config.initialRenditionIndex = index;
+            this.leftPlayerData.config.initialRenditionKbps = Math.round(bitrate / 1000) + 1;
+        } else {
+            this.rightPlayerData.config.initialRenditionIndex = index;
+            this.rightPlayerData.config.initialRenditionKbps = Math.round(bitrate / 1000) + 1;
+        }
+        this.reload();
+    }
+
     /**
      * Event listeners
      */
 
     private initListeners(): void {
-        this.leftPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayTrhough('left');
+        this.leftPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('left');
         this.leftPlayer.htmlPlayer.onended = () => this.onEnded();
         this.leftPlayer.htmlPlayer.onloadstart = () => this.onLoadStart();
         this.leftPlayer.htmlPlayer.onpause = () => this.onPause();
@@ -193,7 +281,7 @@ export class Comparator {
         this.leftPlayer.htmlPlayer.onseeking = () => this.onSeeking();
         this.leftPlayer.htmlPlayer.ontimeupdate = () => this.onTimeUpdate();
 
-        this.rightPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayTrhough('right');
+        this.rightPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('right');
         this.rightPlayer.htmlPlayer.onended = () => this.onEnded();
         this.leftPlayer.htmlPlayer.onpause = () => this.onPause();
         this.leftPlayer.htmlPlayer.onplay = () => this.onPlay();
@@ -225,28 +313,31 @@ export class Comparator {
         window.addEventListener('resize', (event) => this.resizePlayers());
     }
 
-    private onCanPlayTrhough(player: 'left' | 'right') {
+    private onCanPlayThrough(player: 'left' | 'right') {
         if (!this.leftPlayerData.isInitialized || !this.rightPlayerData.isInitialized) {
             if (player === 'left') {
                 this.leftPlayerData.isInitialized = true;
                 this.leftPlayerData.duration = this.leftPlayer.htmlPlayer.duration;
                 this.leftPlayer.htmlPlayer.oncanplay = undefined;
                 if (this.rightPlayerData.isInitialized) {
-                    this.hideSpinner();
-                    this.resizePlayers();
-                    this.play();
+                    this.onCanPlayThroughBoth();
                 }
             } else {
                 this.rightPlayerData.isInitialized = true;
                 this.rightPlayerData.duration = this.leftPlayer.htmlPlayer.duration;
                 this.rightPlayer.htmlPlayer.oncanplay = undefined;
                 if (this.leftPlayerData.isInitialized) {
-                    this.hideSpinner();
-                    this.resizePlayers();
-                    this.play();
+                    this.onCanPlayThroughBoth();
                 }
             }
         }
+    }
+
+    private onCanPlayThroughBoth(): void {
+        this.hideSpinner();
+        this.resizePlayers();
+        this.populateQualitySelector();
+        this.play();
     }
 
     private onEnded(): void {
@@ -295,6 +386,8 @@ export class Comparator {
         if (!this.pidController) {
             this.setPidController();
         }
+
+        this.populateQualitySelector();
 
         const leftCurrentTime = this.leftPlayer.currentTime() as number;
         const rightCurrentTime = this.rightPlayer.currentTime() as number;
