@@ -282,7 +282,6 @@ export class Comparator {
 
         this.populateQualitySelectorSide('left', popup as HTMLDivElement);
         this.populateQualitySelectorSide('right', popup as HTMLDivElement);
-        this.resizePlayers();
     }
 
     private populateQualitySelectorSide(side: 'left' |'right', popup: HTMLDivElement) {
@@ -293,6 +292,11 @@ export class Comparator {
         if (!renditions) {
             return;
         }
+
+        const listItemAuto = document.createElement('li');
+        listItemAuto.innerHTML = `Auto`;
+        listItemAuto.onclick = () => this.setAutoRendition(side);
+        sideElementList.appendChild(listItemAuto);
 
         for (const rendition of renditions) {
             const current = rendition.bitrate === currentRendition.bitrate;
