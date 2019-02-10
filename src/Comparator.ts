@@ -69,6 +69,63 @@ export class Comparator {
         // this.resizePlayers();
     }
 
+    public setRenditionKbps(player: 'left' | 'right', kbps: number): IRendition {
+        if (typeof kbps !== 'number') {
+            return;
+        }
+
+        if (kbps < 0) {
+            this.setAutoRendition(player);
+            return;
+        }
+
+        const renditions = this.getRenditions(player);
+        if (!renditions) {
+            return;
+        }
+
+        let renditionBps = renditions[0].bitrate;
+        let renditionIndex = 0;
+        for (let i = 1; i < renditions.length; i++) {
+            if (kbps >= Math.round(renditions[i].bitrate / 1000)) {
+                renditionBps = renditions[i].bitrate;
+                renditionIndex = i;
+            }
+        }
+
+        this.setRendition(player, renditionIndex, renditionBps);
+        return renditions[renditionIndex];
+    }
+
+    public setRenditionIndex(player: 'left' | 'right', index: number): IRendition {
+        if (typeof index !== 'number') {
+            return;
+        }
+
+        if (index < 0) {
+            this.setAutoRendition(player);
+            return;
+        }
+
+        const renditions = this.getRenditions(player);
+        if (!renditions) {
+            return;
+        }
+
+        if (renditions[index]) {
+            this.setRendition(player, index, renditions[index].bitrate);
+            return renditions[index];
+        }
+    }
+
+    public getRenditions(player: 'left' | 'right'): IRendition[] {
+        if (player === 'left') {
+            return this.leftPlayer.getRenditions();
+        } else {
+            return this.rightPlayer.getRenditions();
+        }
+    }
+
     private cleanVideoComparator(): void {
         while (this.container.firstChild) {
             this.container.removeChild(this.container.firstChild);
@@ -219,10 +276,6 @@ export class Comparator {
     private populateQualitySelector(): void {
         const popup = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}quality-selector-popup`)[0];
 
-        if (popup.childNodes.length === 2) {
-            return;
-        }
-
         while (popup.firstChild) {
             popup.removeChild(popup.firstChild);
         }
@@ -246,7 +299,7 @@ export class Comparator {
             const listItem = document.createElement('li');
             listItem.innerHTML = `${ rendition.width }x${ rendition.height } (${ Math.round(rendition.bitrate / 1000) } kbps)`;
             listItem.className = current ? 'current' : '';
-            listItem.onclick = () => this.setRendition(rendition.level, rendition.bitrate, side);
+            listItem.onclick = () => this.setRendition(side, rendition.level, rendition.bitrate);
             sideElementList.appendChild(listItem);
         }
 
@@ -256,15 +309,22 @@ export class Comparator {
         popup.appendChild(sideElement);
     }
 
-    private setRendition(index: number, bitrate: number, player: 'left' | 'right'): void {
+    private setRendition(player: 'left' | 'right', index: number, bitrate: number): void {
         if (player === 'left') {
             this.leftPlayerData.config.initialRenditionIndex = index;
-            this.leftPlayerData.config.initialRenditionKbps = Math.round(bitrate / 1000) + 1;
+            // ToDO! We need to update epic-video-player in order to manage -1 values for bitrate (auto bitrate)
+            this.leftPlayerData.config.initialRenditionKbps = bitrate > 0 ? Math.round(bitrate / 1000) + 1 : bitrate;
         } else {
             this.rightPlayerData.config.initialRenditionIndex = index;
-            this.rightPlayerData.config.initialRenditionKbps = Math.round(bitrate / 1000) + 1;
+            // ToDO! We need to update epic-video-player in order to manage -1 values for bitrate (auto bitrate)
+            this.rightPlayerData.config.initialRenditionKbps = bitrate > 0 ? Math.round(bitrate / 1000) + 1 : bitrate;
         }
         this.reload();
+    }
+
+    private setAutoRendition(player: 'left' | 'right'): void {
+        // ToDo! Enable when epic-video-player is ready
+        // this.setRendition(player, -1, -1);
     }
 
     /**
@@ -287,7 +347,6 @@ export class Comparator {
         this.leftPlayer.htmlPlayer.onplay = () => this.onPlay();
         this.rightPlayer.htmlPlayer.onseeked = () => this.onSeeked('right');
         this.rightPlayer.htmlPlayer.onseeking = () => this.onSeeking();
-        this.rightPlayer.htmlPlayer.ontimeupdate = () => this.onTimeUpdate();
 
         const wrapper = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}wrapper`)[0] as HTMLDivElement;
 
