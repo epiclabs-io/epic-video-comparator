@@ -7,12 +7,17 @@
     <title>epic-video-player demo</title>
     <script src="bundle/index.min.js"></script>
     <link rel="stylesheet" href="index.css">
+    <style>
+        .comparator {
+            width: 600px;
+        }
+    </style>
 </head>
 <body>
-    <div>
+    <div class="comparator">
         <div id="comparator-container"></div>
     </div>
-    
+
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             const comparatorConfig = {
@@ -21,7 +26,7 @@
                 mediaControls: true,
                 loop: true,
             };
-            window.myComp = evc.newComparator(comparatorConfig, document.getElementById('comparator-container'));
+            window.myComp = new evc.Comparator(comparatorConfig, document.getElementById('comparator-container'));
         });
     </script>
 </body>

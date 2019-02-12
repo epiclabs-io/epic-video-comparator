@@ -1,7 +1,7 @@
 import { IRendition, newPlayer, Player, PlayerClassType, PlayerType } from '@epiclabs/epic-video-player';
 
 import { IComparatorConfig, IPlayerData } from './models';
-import { PidController } from './PidController';
+import { PidController } from './pid-controller';
 
 export class Comparator {
     private static LIBRARY_PREFIX = 'evc-';
@@ -255,14 +255,10 @@ export class Comparator {
     }
 
     private setPidController() {
-        this.pidController = new PidController(0.5, 0.1, 0.1);
-        if (this.leftPlayer.playerType === PlayerType.HLS && this.rightPlayer.playerType === PlayerType.DASH) {
-            this.pidController.setTarget(Comparator.PID_DIFF_OFFSET);
-        } else if (this.leftPlayer.playerType === PlayerType.DASH && this.rightPlayer.playerType === PlayerType.HLS) {
-            this.pidController.setTarget(-Comparator.PID_DIFF_OFFSET);
-        } else {
-            this.pidController.setTarget(0);
-        }
+        const target = this.leftPlayer.playerType === this.rightPlayer.playerType ? 0 :
+            Comparator.PID_DIFF_OFFSET;
+
+        this.pidController = new PidController(0.5, 0.1, 0.1, target);
     }
 
     private showSpinner(): void {
