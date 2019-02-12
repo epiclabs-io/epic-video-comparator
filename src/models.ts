@@ -1,4 +1,4 @@
-import { IPlayerConfig } from '@epiclabs/epic-video-player';
+import { IPlayerConfig, IRendition } from '@epiclabs/epic-video-player';
 
 export interface IComparatorConfig {
     leftUrl: string;
@@ -9,6 +9,10 @@ export interface IComparatorConfig {
 
 export interface IPlayerData {
     config?: IPlayerConfig;
+    currentBitrate?: number;
+    currentHeight?: number;
+    currentWidth?: number;
     duration?: number;
     isInitialized?: boolean;
+    renditions?: IRendition[];
 }

@@ -6,8 +6,8 @@ import { PidController } from './PidController';
 export class Comparator {
     private static LIBRARY_PREFIX = 'evc-';
     private static PID_DIFF_OFFSET = 0.06917999999999935;
-    private static MAX_QUALITY_INDEX = 9999;
-    private static MAX_QUALITY_KBPS = 9999999;
+    private static DEFAULT_QUALITY_INDEX = -1;
+    private static DEFAULT_QUALITY_KBPS = -1;
     public leftPlayer: Player<PlayerClassType>;
     public rightPlayer: Player<PlayerClassType>;
     private leftPlayerData: IPlayerData = {};
@@ -69,17 +69,19 @@ export class Comparator {
         // this.resizePlayers();
     }
 
-    public setRenditionKbps(player: 'left' | 'right', kbps: number): IRendition {
+    public setRenditionKbps(player: 'left' | 'right' | Player<PlayerClassType>, kbps: number): IRendition {
         if (typeof kbps !== 'number') {
             return;
         }
 
+        const playerObject = player === 'left' ? this.leftPlayer : player === 'right' ? this.rightPlayer : player;
+
         if (kbps < 0) {
-            this.setAutoRendition(player);
+            this.setAutoRendition(playerObject);
             return;
         }
 
-        const renditions = this.getRenditions(player);
+        const renditions = this.getRenditions(playerObject);
         if (!renditions) {
             return;
         }
@@ -93,36 +95,40 @@ export class Comparator {
             }
         }
 
-        this.setRendition(player, renditionIndex, renditionBps);
+        this.setRendition(playerObject, renditionIndex, renditionBps);
         return renditions[renditionIndex];
     }
 
-    public setRenditionIndex(player: 'left' | 'right', index: number): IRendition {
+    public setRenditionIndex(player: 'left' | 'right' | Player<PlayerClassType>, index: number): IRendition {
         if (typeof index !== 'number') {
             return;
         }
 
+        const playerObject = player === 'left' ? this.leftPlayer : player === 'right' ? this.rightPlayer : player;
+
         if (index < 0) {
-            this.setAutoRendition(player);
+            this.setAutoRendition(playerObject);
             return;
         }
 
-        const renditions = this.getRenditions(player);
+        const renditions = this.getRenditions(playerObject);
         if (!renditions) {
             return;
         }
 
         if (renditions[index]) {
-            this.setRendition(player, index, renditions[index].bitrate);
+            this.setRendition(playerObject, index, renditions[index].bitrate);
             return renditions[index];
         }
     }
 
-    public getRenditions(player: 'left' | 'right'): IRendition[] {
+    public getRenditions(player: 'left' | 'right' | Player<PlayerClassType>): IRendition[] {
         if (player === 'left') {
             return this.leftPlayer.getRenditions();
-        } else {
+        } else if (player === 'right') {
             return this.rightPlayer.getRenditions();
+        } else {
+            return player.getRenditions();
         }
     }
 
@@ -237,16 +243,16 @@ export class Comparator {
     private setInitialValues() {
         this.leftPlayerData = {
             config: this.leftPlayerData.config || {
-                initialRenditionIndex: Comparator.MAX_QUALITY_INDEX,
-                initialRenditionKbps: Comparator.MAX_QUALITY_KBPS,
+                initialRenditionIndex: Comparator.DEFAULT_QUALITY_INDEX,
+                initialRenditionKbps: Comparator.DEFAULT_QUALITY_KBPS,
             },
             duration: undefined,
             isInitialized: false,
         };
         this.rightPlayerData = {
             config: this.rightPlayerData.config || {
-                initialRenditionIndex: Comparator.MAX_QUALITY_INDEX,
-                initialRenditionKbps: Comparator.MAX_QUALITY_KBPS,
+                initialRenditionIndex: Comparator.DEFAULT_QUALITY_INDEX,
+                initialRenditionKbps: Comparator.DEFAULT_QUALITY_KBPS,
             },
             duration: undefined,
             isInitialized: false,
@@ -280,13 +286,13 @@ export class Comparator {
             popup.removeChild(popup.firstChild);
         }
 
-        this.populateQualitySelectorSide('left', popup as HTMLDivElement);
-        this.populateQualitySelectorSide('right', popup as HTMLDivElement);
+        this.populateQualitySelectorSide(this.leftPlayer, this.leftPlayerData, popup as HTMLDivElement);
+        this.populateQualitySelectorSide(this.rightPlayer, this.rightPlayerData, popup as HTMLDivElement);
     }
 
-    private populateQualitySelectorSide(side: 'left' |'right', popup: HTMLDivElement) {
-        const renditions: IRendition[] = side === 'left' ? this.leftPlayer.getRenditions() : this.rightPlayer.getRenditions();
-        const currentRendition = side === 'left' ? this.leftPlayer.getCurrentRendition() : this.rightPlayer.getCurrentRendition();
+    private populateQualitySelectorSide(player: Player<PlayerClassType>, data: IPlayerData, popup: HTMLDivElement) {
+        const [renditions, currentRendition] = [player.getRenditions(), player.getCurrentRendition()];
+
         const sideElementList = document.createElement('ul');
 
         if (!renditions) {
@@ -294,41 +300,41 @@ export class Comparator {
         }
 
         const listItemAuto = document.createElement('li');
-        listItemAuto.innerHTML = `Auto`;
-        listItemAuto.onclick = () => this.setAutoRendition(side);
+        listItemAuto.innerHTML = `${ data.config.initialRenditionIndex === -1 ? '> ' : ''}Auto`;
+        listItemAuto.onclick = () => this.setAutoRendition(player);
         sideElementList.appendChild(listItemAuto);
 
-        for (const rendition of renditions) {
-            const current = rendition.bitrate === currentRendition.bitrate;
+        for (let i = 0; i < renditions.length; i++) {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `${ rendition.width }x${ rendition.height } (${ Math.round(rendition.bitrate / 1000) } kbps)`;
-            listItem.className = current ? 'current' : '';
-            listItem.onclick = () => this.setRendition(side, rendition.level, rendition.bitrate);
+            const selected = data.config.initialRenditionIndex === i ? '> ' : '';
+            const [width, height, kbps] = [renditions[i].width, renditions[i].height, Math.round(renditions[i].bitrate / 1000)];
+            listItem.innerHTML = `${ selected }${ width }x${ height } (${ kbps } kbps)`;
+            listItem.className = currentRendition && renditions[i].bitrate === currentRendition.bitrate ? 'current' : '';
+            listItem.onclick = () => this.setRendition(player, i, renditions[i].bitrate);
             sideElementList.appendChild(listItem);
         }
 
         const sideElement = document.createElement('div');
-        sideElement.innerHTML  = `<p><b>${ side.toUpperCase() }</b></p>`;
+        const side = player === this.leftPlayer ? 'LEFT' : 'RIGHT';
+        sideElement.innerHTML  = `<p><b>${ side }</b></p>`;
         sideElement.appendChild(sideElementList);
         popup.appendChild(sideElement);
     }
 
-    private setRendition(player: 'left' | 'right', index: number, bitrate: number): void {
-        if (player === 'left') {
+    private setRendition(player: Player<PlayerClassType>, index: number, bitrate: number): void {
+        player.config.initialRenditionIndex = index;
+        player.config.initialRenditionKbps = bitrate >= 0 ? Math.round(bitrate / 1000) + 1 : -1;
+
+        if (player === this.leftPlayer) {
             this.leftPlayerData.config.initialRenditionIndex = index;
-            // ToDO! We need to update epic-video-player in order to manage -1 values for bitrate (auto bitrate)
-            this.leftPlayerData.config.initialRenditionKbps = bitrate > 0 ? Math.round(bitrate / 1000) + 1 : bitrate;
         } else {
             this.rightPlayerData.config.initialRenditionIndex = index;
-            // ToDO! We need to update epic-video-player in order to manage -1 values for bitrate (auto bitrate)
-            this.rightPlayerData.config.initialRenditionKbps = bitrate > 0 ? Math.round(bitrate / 1000) + 1 : bitrate;
         }
         this.reload();
     }
 
-    private setAutoRendition(player: 'left' | 'right'): void {
-        // ToDo! Enable when epic-video-player is ready
-        // this.setRendition(player, -1, -1);
+    private setAutoRendition(player: Player<PlayerClassType>): void {
+        this.setRendition(player, -1, -1);
     }
 
     /**
@@ -400,6 +406,7 @@ export class Comparator {
         this.hideSpinner();
         this.resizePlayers();
         this.populateQualitySelector();
+        this.updatePlayersData();
         this.play();
     }
 
@@ -418,12 +425,13 @@ export class Comparator {
         if (player === 'left' && !this.rightPlayer.htmlPlayer.seeking || player === 'right' && !this.leftPlayer.htmlPlayer.seeking) {
             this.play();
         } else {
-            this.showSpinner();
             this.pause();
+            this.showSpinner();
         }
     }
 
     private onSeeking(): void {
+        this.pause();
         this.showSpinner();
     }
 
@@ -450,7 +458,9 @@ export class Comparator {
             this.setPidController();
         }
 
-        this.populateQualitySelector();
+        if (this.updatePlayersData()) {
+            this.populateQualitySelector();
+        }
 
         const leftCurrentTime = this.leftPlayer.currentTime() as number;
         const rightCurrentTime = this.rightPlayer.currentTime() as number;
@@ -465,6 +475,52 @@ export class Comparator {
         let rate = 1 + update;
         rate = rate < 0.0625 ? 0.0625 : rate > 2 ? 2 : rate;
         this.leftPlayer.playbackRate(rate);
+    }
+
+    private updatePlayersData(): boolean {
+        const lChanged = this.updatePlayerData(this.leftPlayer, this.leftPlayerData);
+        const rChanged = this.updatePlayerData(this.rightPlayer, this.rightPlayerData);
+        return lChanged || rChanged;
+    }
+
+    // returns true if any value has changed
+    private updatePlayerData(player: Player<PlayerClassType>, data: IPlayerData): boolean {
+        let changed = false;
+
+        const currentRendition = player.getCurrentRendition();
+
+        if (currentRendition) {
+            changed = data.currentBitrate !== currentRendition.bitrate ? true : changed;
+            data.currentBitrate = currentRendition.bitrate;
+
+            changed = data.currentWidth !== currentRendition.width ? true : changed;
+            data.currentWidth = currentRendition.width;
+
+            changed = data.currentHeight !== currentRendition.height ? true : changed;
+            data.currentHeight = currentRendition.height;
+        }
+
+        const renditions = player.getRenditions();
+        changed = this.areEqualRenditions(renditions, data.renditions) === false ? true : changed;
+        data.renditions = renditions;
+
+        return changed;
+    }
+
+    private areEqualRenditions(rend1: IRendition[], rend2: IRendition[]): boolean {
+        if (rend1 === undefined || rend2 === undefined || rend1.length !== rend2.length) {
+            return false;
+        }
+
+        if (rend1.length > 0 && rend2.length > 0) {
+            for (let i = 0; i < rend1.length; i++) {
+                if (rend1[i].bitrate !== rend2[i].bitrate && rend1[i].level !== rend2[i].level && rend1[i].height !== rend2[i].height) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private resizePlayers(): void {
