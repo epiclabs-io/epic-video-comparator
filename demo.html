@@ -7,21 +7,26 @@
     <title>epic-video-player demo</title>
     <script src="bundle/index.min.js"></script>
     <link rel="stylesheet" href="index.css">
+    <style>
+        .comparator {
+            width: 600px;
+        }
+    </style>
 </head>
 <body>
-    <div>
+    <div class="comparator">
         <div id="comparator-container"></div>
     </div>
-    
+
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const comparatorConfig = {
+        document.addEventListener('DOMContentLoaded', function () {
+            var comparatorConfig = {
                 leftUrl: 'https://video.lightflow.media/dash/standard/56c2bf64-9faf-4d81-9ad1-9c21c278806a/manifest.mpd',
-                rightUrl: 'https://video.lightflow.media/dash/56c2bf64-9faf-4d81-9ad1-9c21c278806a/manifest.mpd',
-                renderMediaControls: true,
+                rightUrl: 'https://video.lightflow.media/hls/56c2bf64-9faf-4d81-9ad1-9c21c278806a/master.m3u8',
+                mediaControls: true,
                 loop: true,
             };
-            window.myComp = evc.newComparator(comparatorConfig, document.getElementById('comparator-container'));
+            window.myComp = new evc.Comparator(comparatorConfig, document.getElementById('comparator-container'));
         });
     </script>
 </body>

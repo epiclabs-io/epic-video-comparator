@@ -1,11 +1,18 @@
+import { IPlayerConfig, IRendition } from '@epiclabs/epic-video-player';
+
 export interface IComparatorConfig {
     leftUrl: string;
     loop?: boolean;
     rightUrl: string;
-    renderMediaControls?: boolean;
+    mediaControls?: boolean;
 }
 
 export interface IPlayerData {
-    isInitialized: boolean;
-    duration: number;
+    config?: IPlayerConfig;
+    currentBitrate?: number;
+    currentHeight?: number;
+    currentWidth?: number;
+    duration?: number;
+    isInitialized?: boolean;
+    renditions?: IRendition[];
 }
