@@ -74,6 +74,19 @@ $ npm run build
 - **fullScreen()**
 
   Enter fullscreen mode.
+
+- **setRenditionKbps(player: 'left' | 'right', kbps: number): IRendition**
+
+  Set a desired rendition given as Kbps on one of the players.
+
+- **setRenditionIndex(player: 'left' | 'right', index: number): IRendition**
+
+  Set a desired rendition given as index number on one of the players. The order will be the order of the array returned by *getRenditions* method.
+
+- **getRenditions(player: 'left' | 'right'): IRendition[]**
+
+  Retrieve the list of available renditions of one of the players.
+
   
 ## Object interfaces
 

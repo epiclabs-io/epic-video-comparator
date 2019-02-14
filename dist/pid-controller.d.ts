@@ -2,15 +2,14 @@ export declare class PidController {
     private kP;
     private kI;
     private kD;
-    private dT?;
-    private iMax?;
+    private target;
     private sumError;
     private lastError;
     private lastTime;
-    private target;
+    private dT;
+    private iMax;
     private currentValue;
-    constructor(kP: number, kI: number, kD: number, dT?: number, iMax?: number);
-    setTarget(target: any): void;
+    constructor(kP: number, kI: number, kD: number, target: number);
     update(currentValue: any): number;
     reset(): void;
 }
