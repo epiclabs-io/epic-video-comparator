@@ -1,19 +1,25 @@
-import { IRendition, newPlayer, Player, PlayerClassType, PlayerType } from '@epiclabs/epic-video-player';
+import { IRendition, newPlayer, Player, PlayerClassType } from '@epiclabs/epic-video-player';
 
 import { IComparatorConfig, IPlayerData } from './models';
 import { PidController } from './pid-controller';
 
+import * as screenfull from 'screenfull';
+
 export class Comparator {
-    private static LIBRARY_PREFIX = 'evc-';
+    private static LIB_PREFIX = 'evc-';
     private static PID_DIFF_OFFSET = 0.06917999999999935;
     private static DEFAULT_QUALITY_INDEX = -1;
     private static DEFAULT_QUALITY_KBPS = -1;
+
     public leftPlayer: Player<PlayerClassType>;
     public rightPlayer: Player<PlayerClassType>;
+
     private leftPlayerData: IPlayerData = {};
     private rightPlayerData: IPlayerData = {};
     private isSplitterSticked = true;
     private pidController: PidController;
+    private fullScreenWrapper: HTMLDivElement;
+    private isFullScreen = false;
 
     constructor(private config: IComparatorConfig, private container: HTMLDivElement) {
         this.setInitialValues();
@@ -48,25 +54,22 @@ export class Comparator {
     }
 
     public reload(): void {
+        this.destroy();
         this.setInitialValues();
-        this.cleanVideoComparator();
         this.createVideoComparator();
         this.initListeners();
+        if (this.isFullScreen) {
+            this.toggleFullScreenClasses();
+        }
     }
 
-    public fullScreen(): void {
-        alert('Coming soon!');
-        // const container = this.container.parentNode as any;
-        // if (container.requestFullscreen) {
-        //     container.requestFullscreen();
-        // } else if (container.msRequestFullscreen) {
-        //     container.msRequestFullscreen();
-        // } else if (container.mozRequestFullScreen) {
-        //     container.mozRequestFullScreen();
-        // } else if (container.webkitRequestFullscreen) {
-        //     container.webkitRequestFullscreen();
-        // }
-        // this.resizePlayers();
+    public toggleFullScreen(): void {
+        if (this.isFullScreen) {
+            screenfull.exit().catch(() => { this.isFullScreen = !this.isFullScreen; this.toggleFullScreen(); });
+        } else {
+            screenfull.request(this.container).catch(() => { this.isFullScreen = !this.isFullScreen; this.toggleFullScreen(); });
+        }
+        this.resizePlayers();
     }
 
     public setRenditionKbps(player: 'left' | 'right' | Player<PlayerClassType>, kbps: number): IRendition {
@@ -132,6 +135,11 @@ export class Comparator {
         }
     }
 
+    public destroy(): void {
+        this.destroyListeners();
+        this.cleanVideoComparator();
+    }
+
     private cleanVideoComparator(): void {
         while (this.container.firstChild) {
             this.container.removeChild(this.container.firstChild);
@@ -139,26 +147,30 @@ export class Comparator {
     }
 
     private seekInner($event): void {
-        const seekBar = (this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}seek-bar`)[0] as HTMLDivElement);
-        const seekBarInner = (this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}seek-bar-inner`)[0] as HTMLDivElement);
+        const seekBar = (this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}seek-bar`)[0] as HTMLDivElement);
+        const seekBarInner = (this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}seek-bar-inner`)[0] as HTMLDivElement);
         const time = $event.offsetX * this.leftPlayerData.duration / seekBar.offsetWidth;
         seekBarInner.style.width = (time / this.leftPlayerData.duration * 100) + '%';
         this.seek(time);
     }
 
     private createVideoComparator(): void {
-        const wrapper = document.createElement('div');
-        wrapper.className = `${Comparator.LIBRARY_PREFIX}wrapper`;
+        this.container.classList.add(`${Comparator.LIB_PREFIX}container`);
 
+        this.fullScreenWrapper = document.createElement('div');
+        this.fullScreenWrapper.className = `${Comparator.LIB_PREFIX}full-screen-wrapper`;
+        this.container.appendChild(this.fullScreenWrapper);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `${Comparator.LIB_PREFIX}wrapper`;
         const leftVideoWrapper = this.createVideoPlayer('left');
         const rightVideoWrapper = this.createVideoPlayer('right');
         wrapper.appendChild(leftVideoWrapper);
         wrapper.appendChild(rightVideoWrapper);
 
-        this.container.appendChild(this.createLoadingSpinner());
-        this.container.appendChild(wrapper);
-        this.container.appendChild(this.createMediaControls());
-        this.container.classList.add(`${Comparator.LIBRARY_PREFIX}container`);
+        this.fullScreenWrapper.appendChild(this.createLoadingSpinner());
+        this.fullScreenWrapper.appendChild(wrapper);
+        this.fullScreenWrapper.appendChild(this.createMediaControls());
 
         this.leftPlayer = newPlayer(this.config.leftUrl, leftVideoWrapper.getElementsByTagName('video')[0], this.leftPlayerData.config);
         this.rightPlayer = newPlayer(this.config.rightUrl, rightVideoWrapper.getElementsByTagName('video')[0], this.rightPlayerData.config);
@@ -166,9 +178,9 @@ export class Comparator {
 
     private createVideoPlayer(player: 'left' | 'right'): HTMLDivElement {
         const videoWrapper = document.createElement('div');
-        videoWrapper.className = `${Comparator.LIBRARY_PREFIX}${player}-video-wrapper`;
+        videoWrapper.className = `${Comparator.LIB_PREFIX}${player}-video-wrapper`;
         const videoElement = document.createElement('video');
-        videoElement.className = `${Comparator.LIBRARY_PREFIX}video`;
+        videoElement.className = `${Comparator.LIB_PREFIX}video`;
         videoElement.muted = true;
         videoElement.autoplay = false;
         videoWrapper.appendChild(videoElement);
@@ -177,7 +189,7 @@ export class Comparator {
 
     private createLoadingSpinner(): HTMLDivElement {
         const loadingSpiner = document.createElement('div');
-        loadingSpiner.className = `${Comparator.LIBRARY_PREFIX}loading-spinner`;
+        loadingSpiner.className = `${Comparator.LIB_PREFIX}loading-spinner`;
         loadingSpiner.innerHTML = '<div><div></div></div>';
         return loadingSpiner;
     }
@@ -188,17 +200,17 @@ export class Comparator {
         }
 
         const controls = document.createElement('div');
-        controls.className = `${Comparator.LIBRARY_PREFIX}media-controls`;
+        controls.className = `${Comparator.LIB_PREFIX}media-controls`;
 
         // play pause button
         const playPause = document.createElement('div');
-        playPause.className = `${Comparator.LIBRARY_PREFIX}play-pause`;
+        playPause.className = `${Comparator.LIB_PREFIX}play-pause`;
         playPause.onclick = () => this.togglePlayPause();
         controls.appendChild(playPause);
 
         // reload button
         const reload = document.createElement('div');
-        reload.className = `${Comparator.LIBRARY_PREFIX}reload`;
+        reload.className = `${Comparator.LIB_PREFIX}reload`;
         reload.title = 'Reload';
         reload.onclick = () => this.reload();
         reload.appendChild(document.createElement('div'));
@@ -206,30 +218,33 @@ export class Comparator {
 
         // seekbar
         const seekBar = document.createElement('div');
-        seekBar.className = `${Comparator.LIBRARY_PREFIX}seek-bar`;
+        seekBar.className = `${Comparator.LIB_PREFIX}seek-bar`;
         seekBar.onclick = ($event) => this.seekInner($event);
         const seekBarInner = document.createElement('div');
-        seekBarInner.className = `${Comparator.LIBRARY_PREFIX}seek-bar-inner`;
+        seekBarInner.className = `${Comparator.LIB_PREFIX}seek-bar-inner`;
         seekBar.appendChild(seekBarInner);
         controls.appendChild(seekBar);
 
         // quality selector popup
+        const qualitySelectorPopupWrapper = document.createElement('div');
+        qualitySelectorPopupWrapper.className = `${Comparator.LIB_PREFIX}quality-selector-popup-wrapper`;
         const qualitySelectorPopup = document.createElement('div');
-        qualitySelectorPopup.className = `${Comparator.LIBRARY_PREFIX}quality-selector-popup`;
-        this.container.appendChild(qualitySelectorPopup);
+        qualitySelectorPopup.className = `${Comparator.LIB_PREFIX}quality-selector-popup`;
+        qualitySelectorPopupWrapper.appendChild(qualitySelectorPopup);
+        this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0].appendChild(qualitySelectorPopupWrapper);
 
         // quality selector button
         const qualitySelectorIcon = document.createElement('div');
-        qualitySelectorIcon.className = `${Comparator.LIBRARY_PREFIX}quality-icon`;
+        qualitySelectorIcon.className = `${Comparator.LIB_PREFIX}quality-icon`;
         qualitySelectorIcon.title = 'Quality selector';
         qualitySelectorIcon.onclick = ($event) => this.onQualityIconClick($event, qualitySelectorIcon, qualitySelectorPopup);
         controls.appendChild(qualitySelectorIcon);
 
         // fullscreen button
         const fullScreen = document.createElement('div');
-        fullScreen.className = `${Comparator.LIBRARY_PREFIX}full-screen`;
+        fullScreen.className = `${Comparator.LIB_PREFIX}full-screen`;
         fullScreen.title = 'Full screen';
-        fullScreen.onclick = () => this.fullScreen();
+        fullScreen.onclick = () => this.toggleFullScreen();
         controls.appendChild(fullScreen);
 
         return controls;
@@ -268,15 +283,15 @@ export class Comparator {
     }
 
     private showSpinner(): void {
-        this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}loading-spinner`)[0].classList.remove('hidden');
+        this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}loading-spinner`)[0].classList.remove('hidden');
     }
 
     private hideSpinner(): void {
-        this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}loading-spinner`)[0].classList.add('hidden');
+        this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}loading-spinner`)[0].classList.add('hidden');
     }
 
     private populateQualitySelector(): void {
-        const popup = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}quality-selector-popup`)[0];
+        const popup = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}quality-selector-popup`)[0];
 
         while (popup.firstChild) {
             popup.removeChild(popup.firstChild);
@@ -338,6 +353,8 @@ export class Comparator {
      */
 
     private initListeners(): void {
+        screenfull.on('change', this.onFullscreenChange);
+
         this.leftPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('left');
         this.leftPlayer.htmlPlayer.onended = () => this.onEnded();
         this.leftPlayer.htmlPlayer.onloadstart = () => this.onLoadStart();
@@ -354,11 +371,12 @@ export class Comparator {
         this.rightPlayer.htmlPlayer.onseeked = () => this.onSeeked('right');
         this.rightPlayer.htmlPlayer.onseeking = () => this.onSeeking();
 
-        const wrapper = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}wrapper`)[0] as HTMLDivElement;
+        const wrapper = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0] as HTMLDivElement;
+        const popupWrapper = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}quality-selector-popup-wrapper`)[0];
 
         const moveSplit = (event) => {
             if (!this.isSplitterSticked) {
-                const leftWrapper = (wrapper.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}left-video-wrapper`)[0] as HTMLDivElement);
+                const leftWrapper = (wrapper.getElementsByClassName(`${Comparator.LIB_PREFIX}left-video-wrapper`)[0] as HTMLDivElement);
                 leftWrapper.style.width = event.offsetX + 'px';
                 leftWrapper.getElementsByTagName('video')[0].style.width = wrapper.offsetWidth + 'px';
             }
@@ -369,13 +387,41 @@ export class Comparator {
             if (!this.isSplitterSticked) {
                 moveSplit(event);
             }
+            popupWrapper.classList.toggle('moving-split');
         };
 
         wrapper.onmousemove = moveSplit;
         wrapper.ontouchstart = moveSplit;
         wrapper.ontouchmove = moveSplit;
         wrapper.onclick = stickSplit;
-        window.addEventListener('resize', (event) => this.resizePlayers());
+        window.addEventListener('resize', this.resizePlayers);
+    }
+
+    private destroyListeners(): void {
+        screenfull.off('change', this.onFullscreenChange);
+
+        this.leftPlayer.htmlPlayer.oncanplaythrough = undefined;
+        this.leftPlayer.htmlPlayer.onended = undefined;
+        this.leftPlayer.htmlPlayer.onloadstart = undefined;
+        this.leftPlayer.htmlPlayer.onpause = undefined;
+        this.leftPlayer.htmlPlayer.onplay = undefined;
+        this.leftPlayer.htmlPlayer.onseeked = undefined;
+        this.leftPlayer.htmlPlayer.onseeking = undefined;
+        this.leftPlayer.htmlPlayer.ontimeupdate = undefined;
+
+        this.rightPlayer.htmlPlayer.oncanplaythrough = undefined;
+        this.rightPlayer.htmlPlayer.onended = undefined;
+        this.leftPlayer.htmlPlayer.onpause = undefined;
+        this.leftPlayer.htmlPlayer.onplay = undefined;
+        this.rightPlayer.htmlPlayer.onseeked = undefined;
+        this.rightPlayer.htmlPlayer.onseeking = undefined;
+
+        const wrapper = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0] as HTMLDivElement;
+        wrapper.onmousemove = undefined;
+        wrapper.ontouchstart = undefined;
+        wrapper.ontouchmove = undefined;
+        wrapper.onclick = undefined;
+        window.removeEventListener('resize', this.resizePlayers);
     }
 
     private onCanPlayThrough(player: 'left' | 'right') {
@@ -433,7 +479,7 @@ export class Comparator {
 
     private onPlay() {
         this.play();
-        const playPause = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}play-pause`)[0] as HTMLDivElement;
+        const playPause = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}play-pause`)[0] as HTMLDivElement;
         if (playPause !== undefined) {
             playPause.classList.add('playing');
             playPause.title = 'Pause';
@@ -442,7 +488,7 @@ export class Comparator {
 
     private onPause() {
         this.pause();
-        const playPause = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}play-pause`)[0] as HTMLDivElement;
+        const playPause = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}play-pause`)[0] as HTMLDivElement;
         if (playPause !== undefined) {
             playPause.classList.remove('playing');
             playPause.title = 'Play';
@@ -461,7 +507,7 @@ export class Comparator {
         const leftCurrentTime = this.leftPlayer.currentTime() as number;
         const rightCurrentTime = this.rightPlayer.currentTime() as number;
 
-        const seekBarInner = (this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}seek-bar-inner`)[0] as HTMLDivElement);
+        const seekBarInner = (this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}seek-bar-inner`)[0] as HTMLDivElement);
         if (seekBarInner !== undefined) {
             seekBarInner.style.width = (leftCurrentTime / this.leftPlayerData.duration * 100) + '%';
         }
@@ -519,10 +565,21 @@ export class Comparator {
         return true;
     }
 
-    private resizePlayers(): void {
-        const wrapper = this.container.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}wrapper`)[0] as HTMLDivElement;
+    private onFullscreenChange = () => {
+        this.isFullScreen = !this.isFullScreen;
+        this.toggleFullScreenClasses();
+        this.resizePlayers();
+    }
+
+    private toggleFullScreenClasses(): void {
+        this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0].classList.toggle('full-screen-mode');
+        this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}media-controls`)[0].classList.toggle('full-screen-mode');
+    }
+
+    private resizePlayers = () => {
+        const wrapper = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0] as HTMLDivElement;
         const wrapperWidth = wrapper.offsetWidth;
-        const leftWrapper = (wrapper.getElementsByClassName(`${Comparator.LIBRARY_PREFIX}left-video-wrapper`)[0] as HTMLDivElement);
+        const leftWrapper = (wrapper.getElementsByClassName(`${Comparator.LIB_PREFIX}left-video-wrapper`)[0] as HTMLDivElement);
         leftWrapper.style.width = (wrapperWidth / 2) + 'px';
         leftWrapper.getElementsByTagName('video')[0].style.width = wrapperWidth + 'px';
     }
