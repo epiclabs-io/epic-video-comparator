@@ -10,6 +10,10 @@ $splitter-color: '#ffffff';
     margin: 0 auto;
     background-color: black;
 
+    *:before, *:after {
+        box-sizing: unset;
+    }
+
     *.full-screen-mode {
         margin: 0 auto;
         max-width: calc(100vh * 16 / 9 - 100px);
