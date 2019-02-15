@@ -3,6 +3,9 @@
   margin: 0 auto;
   background-color: black;
 }
+.evc-container *:before, .evc-container *:after {
+  box-sizing: unset;
+}
 .evc-container *.full-screen-mode {
   margin: 0 auto;
   max-width: calc(100vh * 16 / 9 - 100px);
