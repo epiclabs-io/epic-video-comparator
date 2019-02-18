@@ -10,8 +10,8 @@ $splitter-color: '#ffffff';
     margin: 0 auto;
     background-color: black;
 
-    *:before, *:after {
-        box-sizing: unset;
+    *, *:before, *:after {
+        box-sizing: content-box;
     }
 
     *.full-screen-mode {
