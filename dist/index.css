@@ -3,8 +3,8 @@
   margin: 0 auto;
   background-color: black;
 }
-.evc-container *:before, .evc-container *:after {
-  box-sizing: unset;
+.evc-container *, .evc-container *:before, .evc-container *:after {
+  box-sizing: content-box;
 }
 .evc-container *.full-screen-mode {
   margin: 0 auto;
