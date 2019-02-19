@@ -348,6 +348,11 @@ var Comparator = /** @class */ (function () {
         if (!renditions) {
             return;
         }
+        if (data.config.initialRenditionIndex === Comparator.DEFAULT_QUALITY_INDEX &&
+            data.config.initialRenditionKbps === Comparator.DEFAULT_QUALITY_KBPS) {
+            data.config.initialRenditionIndex = renditions.length - 1;
+            data.config.initialRenditionKbps = renditions[renditions.length - 1].bitrate / 1000;
+        }
         var listItemAuto = document.createElement('li');
         listItemAuto.innerHTML = (data.config.initialRenditionIndex === -1 ? '> ' : '') + "Auto";
         listItemAuto.onclick = function () { return _this.setAutoRendition(player); };
@@ -589,8 +594,8 @@ var Comparator = /** @class */ (function () {
     };
     Comparator.LIB_PREFIX = 'evc-';
     Comparator.PID_DIFF_OFFSET = 0.06917999999999935;
-    Comparator.DEFAULT_QUALITY_INDEX = -1;
-    Comparator.DEFAULT_QUALITY_KBPS = -1;
+    Comparator.DEFAULT_QUALITY_INDEX = 9999;
+    Comparator.DEFAULT_QUALITY_KBPS = 999999;
     return Comparator;
 }());
 exports.Comparator = Comparator;
