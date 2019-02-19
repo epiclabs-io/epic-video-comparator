@@ -5,6 +5,13 @@
 }
 .evc-container *, .evc-container *:before, .evc-container *:after {
   box-sizing: content-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.evc-container *:focus {
+  outline: none;
 }
 .evc-container *.full-screen-mode {
   margin: 0 auto;
@@ -18,6 +25,35 @@
 }
 .evc-container:not(.loaded-metadata) .evc-media-controls {
   display: none;
+}
+.evc-container .evc-wrapper .evc-left-stats, .evc-container .evc-wrapper .evc-right-stats {
+  position: absolute;
+  white-space: nowrap;
+  min-width: 133px;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 5px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  top: 10px;
+  color: white;
+  font-size: 0.85em;
+}
+.evc-container .evc-wrapper .evc-left-stats p, .evc-container .evc-wrapper .evc-right-stats p {
+  margin: 0;
+}
+.evc-container .evc-wrapper .evc-left-stats {
+  left: 10px;
+}
+.evc-container .evc-wrapper .evc-right-stats {
+  right: 10px;
+}
+.evc-container .evc-wrapper .evc-left-stats.hidden, .evc-container .evc-wrapper .evc-right-stats.hidden {
+  display: none;
+}
+.evc-container .evc-wrapper .evc-left-stats.moving-split, .evc-container .evc-wrapper .evc-right-stats.moving-split {
+  pointer-events: none;
+  opacity: 0.6;
 }
 .evc-container .evc-wrapper .evc-left-video-wrapper {
   overflow: hidden;
@@ -101,6 +137,8 @@
   height: 60px;
   background-color: #7abb00;
   position: relative;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
   border-radius: 50%;
   background-size: cover;
   animation: spin 1s ease-in-out infinite;
@@ -169,6 +207,8 @@
   cursor: pointer;
   width: 18px;
   height: 18px;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
   border-radius: 50%;
   border-width: 3px;
   border-style: solid;
@@ -211,6 +251,8 @@
   width: 12px;
   height: 12px;
   margin-bottom: 4px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
   border-radius: 5px;
   cursor: pointer;
   border: 4px solid #202020;

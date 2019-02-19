@@ -15,9 +15,10 @@ export declare class Comparator {
     private pidController;
     private fullScreenWrapper;
     private isFullScreen;
+    private statsInterval;
     constructor(config: IComparatorConfig, container: HTMLDivElement);
-    play(): void;
     pause(): void;
+    play(): void;
     togglePlayPause(): void;
     seek(time: number): void;
     reload(): void;
@@ -25,11 +26,16 @@ export declare class Comparator {
     setRenditionKbps(player: 'left' | 'right' | Player<PlayerClassType>, kbps: number): IRendition;
     setRenditionIndex(player: 'left' | 'right' | Player<PlayerClassType>, index: number): IRendition;
     getRenditions(player: 'left' | 'right' | Player<PlayerClassType>): IRendition[];
+    toggleStats(): void;
+    updateStats(innerLeft: string, innerRight: string): void;
     destroy(): void;
+    private updateStatsBox;
+    private getTotalBuffer;
     private cleanVideoComparator;
     private seekInner;
     private createVideoComparator;
     private createVideoPlayer;
+    private createStatsBox;
     private createLoadingSpinner;
     private createMediaControls;
     private onQualityIconClick;

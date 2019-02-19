@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var epic_video_player_1 = require("@epiclabs/epic-video-player");
+var models_1 = require("./models");
 var pid_controller_1 = require("./pid-controller");
 var screenfull = tslib_1.__importStar(require("screenfull"));
 var Comparator = /** @class */ (function () {
@@ -13,6 +14,7 @@ var Comparator = /** @class */ (function () {
         this.rightPlayerData = {};
         this.isSplitterSticked = true;
         this.isFullScreen = false;
+        this.statsInterval = undefined;
         this.onFullscreenChange = function () {
             _this.isFullScreen = !_this.isFullScreen;
             _this.toggleFullScreenClasses();
@@ -30,14 +32,14 @@ var Comparator = /** @class */ (function () {
         this.initListeners();
         return this;
     }
+    Comparator.prototype.pause = function () {
+        this.leftPlayer.pause();
+        this.rightPlayer.pause();
+    };
     Comparator.prototype.play = function () {
         this.leftPlayer.play();
         this.rightPlayer.play();
         this.hideSpinner();
-    };
-    Comparator.prototype.pause = function () {
-        this.leftPlayer.pause();
-        this.rightPlayer.pause();
     };
     Comparator.prototype.togglePlayPause = function () {
         if (this.leftPlayer.htmlPlayer.paused) {
@@ -64,10 +66,16 @@ var Comparator = /** @class */ (function () {
     Comparator.prototype.toggleFullScreen = function () {
         var _this = this;
         if (this.isFullScreen) {
-            screenfull.exit().catch(function () { _this.isFullScreen = !_this.isFullScreen; _this.toggleFullScreen(); });
+            screenfull.exit().catch(function () {
+                _this.isFullScreen = !_this.isFullScreen;
+                _this.toggleFullScreen();
+            });
         }
         else {
-            screenfull.request(this.container).catch(function () { _this.isFullScreen = !_this.isFullScreen; _this.toggleFullScreen(); });
+            screenfull.request(this.container).catch(function () {
+                _this.isFullScreen = !_this.isFullScreen;
+                _this.toggleFullScreen();
+            });
         }
         this.resizePlayers();
     };
@@ -124,9 +132,66 @@ var Comparator = /** @class */ (function () {
             return player.getRenditions();
         }
     };
+    Comparator.prototype.toggleStats = function () {
+        var leftStatsContainer = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "left-stats")[0];
+        leftStatsContainer.classList.toggle('hidden');
+        var rightStatsContainer = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "right-stats")[0];
+        rightStatsContainer.classList.toggle('hidden');
+    };
+    Comparator.prototype.updateStats = function (innerLeft, innerRight) {
+        clearInterval(this.statsInterval);
+        this.config.stats = models_1.StatsConfig.customStats();
+        var leftStatsContainer = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "left-stats")[0];
+        leftStatsContainer.innerHTML = innerLeft;
+        var rightStatsContainer = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "right-stats")[0];
+        rightStatsContainer.innerHTML = innerRight;
+    };
     Comparator.prototype.destroy = function () {
         this.destroyListeners();
         this.cleanVideoComparator();
+    };
+    Comparator.prototype.updateStatsBox = function (player, stats, rendition) {
+        if (this.config.stats === false || this.config.stats.custom === true) {
+            return;
+        }
+        var inner = '';
+        var statsConfig = this.config.stats;
+        if (statsConfig.showDuration !== false && stats && stats.duration > 0) {
+            inner += "<p><b>Duration:</b> " + Math.round(stats.duration) + " s</p>";
+        }
+        if (statsConfig.showDroppedFrames !== false && stats && stats.droppedFrames >= 0) {
+            inner += "<p><b>Dropped frames:</b> " + stats.droppedFrames + "</p>";
+        }
+        if (statsConfig.showBuffered !== false && stats && stats.buffered !== undefined) {
+            inner += "<p><b>Buffered:</b> " + this.getTotalBuffer(stats.buffered) + " s</p>";
+        }
+        if (statsConfig.showStartupTime !== false && stats && stats.loadTime > 0) {
+            inner += "<p><b>Startup time:</b> " + Math.round(stats.loadTime * 100) / 100 + " s</p>";
+        }
+        if (statsConfig.showBitrate !== false && rendition && rendition.bitrate > 0) {
+            inner += "<p><b>Bitrate:</b> " + Math.round(rendition.bitrate / 1000) + " Kbps</p>";
+        }
+        if (statsConfig.showResolution !== false && rendition && rendition.width > 0 && rendition.height > 0) {
+            inner += "<p><b>Resolution:</b> " + rendition.width + "x" + rendition.height + "</p>";
+        }
+        if (statsConfig.showVideoCodec !== false && rendition && !!rendition.videoCodec) {
+            inner += "<p><b>Video codec:</b> " + rendition.videoCodec + "</p>";
+        }
+        if (statsConfig.showAudioCodec !== false && rendition && !!rendition.audioCodec) {
+            inner += "<p><b>Audio codec:</b> " + rendition.audioCodec + "</p>";
+        }
+        var statsContainer = this.container.getElementsByClassName("" + Comparator.LIB_PREFIX + player + "-stats")[0];
+        statsContainer.innerHTML = inner;
+    };
+    Comparator.prototype.getTotalBuffer = function (buffered) {
+        var res = 0;
+        if (buffered !== undefined && buffered.length > 0) {
+            for (var _i = 0, buffered_1 = buffered; _i < buffered_1.length; _i++) {
+                var buffer = buffered_1[_i];
+                res += (buffer.end - buffer.start);
+            }
+        }
+        return Math.round(res);
     };
     Comparator.prototype.cleanVideoComparator = function () {
         while (this.container.firstChild) {
@@ -165,7 +230,14 @@ var Comparator = /** @class */ (function () {
         videoElement.muted = true;
         videoElement.autoplay = false;
         videoWrapper.appendChild(videoElement);
+        videoWrapper.appendChild(this.createStatsBox(player));
         return videoWrapper;
+    };
+    Comparator.prototype.createStatsBox = function (player) {
+        var stats = document.createElement('div');
+        stats.className = "" + Comparator.LIB_PREFIX + player + "-stats";
+        stats.classList.add('hidden');
+        return stats;
     };
     Comparator.prototype.createLoadingSpinner = function () {
         var loadingSpiner = document.createElement('div');
@@ -243,6 +315,12 @@ var Comparator = /** @class */ (function () {
             isInitialized: false,
         };
         this.pidController = undefined;
+        if (this.config.stats === undefined) {
+            this.config.stats = models_1.StatsConfig.defaultStats();
+        }
+        else if (this.config.stats.custom === true) {
+            this.config.stats = models_1.StatsConfig.customStats();
+        }
     };
     Comparator.prototype.setPidController = function () {
         var target = this.leftPlayer.playerType === this.rightPlayer.playerType ? 0 :
@@ -328,6 +406,8 @@ var Comparator = /** @class */ (function () {
         this.rightPlayer.htmlPlayer.onseeking = function () { return _this.onSeeking(); };
         var wrapper = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "wrapper")[0];
         var popupWrapper = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "quality-selector-popup-wrapper")[0];
+        var leftStatsWrappers = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "left-stats")[0];
+        var rightStatsWrappers = this.container.getElementsByClassName(Comparator.LIB_PREFIX + "right-stats")[0];
         var moveSplit = function (event) {
             if (!_this.isSplitterSticked) {
                 var leftWrapper = wrapper.getElementsByClassName(Comparator.LIB_PREFIX + "left-video-wrapper")[0];
@@ -341,15 +421,28 @@ var Comparator = /** @class */ (function () {
                 moveSplit(event);
             }
             popupWrapper.classList.toggle('moving-split');
+            leftStatsWrappers.classList.toggle('moving-split');
+            rightStatsWrappers.classList.toggle('moving-split');
         };
         wrapper.onmousemove = moveSplit;
         wrapper.ontouchstart = moveSplit;
         wrapper.ontouchmove = moveSplit;
         wrapper.onclick = stickSplit;
         window.addEventListener('resize', this.resizePlayers);
+        if (this.config.stats !== false) {
+            leftStatsWrappers.classList.remove('hidden');
+            rightStatsWrappers.classList.remove('hidden');
+            this.updateStatsBox('left', this.leftPlayer.getStats(), this.leftPlayer.getCurrentRendition());
+            this.updateStatsBox('right', this.rightPlayer.getStats(), this.rightPlayer.getCurrentRendition());
+            this.statsInterval = setInterval(function () {
+                _this.updateStatsBox('left', _this.leftPlayer.getStats(), _this.leftPlayer.getCurrentRendition());
+                _this.updateStatsBox('right', _this.rightPlayer.getStats(), _this.rightPlayer.getCurrentRendition());
+            }, 1500);
+        }
     };
     Comparator.prototype.destroyListeners = function () {
         screenfull.off('change', this.onFullscreenChange);
+        clearInterval(this.statsInterval);
         this.leftPlayer.htmlPlayer.oncanplaythrough = undefined;
         this.leftPlayer.htmlPlayer.onended = undefined;
         this.leftPlayer.htmlPlayer.onloadstart = undefined;

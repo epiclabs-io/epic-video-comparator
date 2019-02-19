@@ -5,6 +5,6 @@ This document will track the changes of this project, based on [Keep a Changelog
 ## Wanted features / Roadmap
 - 
 
-## [Unpublished]
+## [0.0.1]
 ## [Added]
 - Initial version.
