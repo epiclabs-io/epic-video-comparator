@@ -8,8 +8,8 @@ import * as screenfull from 'screenfull';
 export class Comparator {
   private static LIB_PREFIX = 'evc-';
   private static PID_DIFF_OFFSET = 0.06917999999999935;
-  private static DEFAULT_QUALITY_INDEX = -1;
-  private static DEFAULT_QUALITY_KBPS = -1;
+  private static DEFAULT_QUALITY_INDEX = 9999;
+  private static DEFAULT_QUALITY_KBPS = 999999;
 
   public leftPlayer: Player<PlayerClassType>;
   public rightPlayer: Player<PlayerClassType>;
@@ -402,6 +402,12 @@ export class Comparator {
 
     if (!renditions) {
       return;
+    }
+
+    if (data.config.initialRenditionIndex === Comparator.DEFAULT_QUALITY_INDEX &&
+        data.config.initialRenditionKbps === Comparator.DEFAULT_QUALITY_KBPS) {
+      data.config.initialRenditionIndex = renditions.length - 1;
+      data.config.initialRenditionKbps = renditions[renditions.length - 1].bitrate / 1000;
     }
 
     const listItemAuto = document.createElement('li');
