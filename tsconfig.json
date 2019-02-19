@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "declaration": true,
     "sourceMap": false,
     "outDir": "dist",
@@ -11,7 +14,9 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "baseUrl": "./",
-    "typeRoots": ["node_modules/@types"],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "esModuleInterop": true,
     "experimentalDecorators": false,
     "allowSyntheticDefaultImports": true

@@ -1,13 +1,21 @@
 {
-    "defaultSeverity": "error",
-    "extends": [
-        "tslint:recommended"
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "jsRules": {},
+  "rules": {
+    "quotemark": [
+      true,
+      "single"
     ],
-    "jsRules": {},
-    "rules": {
-        "quotemark": [true, "single"],
-        "no-console": [false],
-        "max-line-length": [true, 140]
-    },
-    "rulesDirectory": []
+    "no-console": [
+      false
+    ],
+    "max-line-length": [
+      true,
+      140
+    ]
+  },
+  "rulesDirectory": []
 }

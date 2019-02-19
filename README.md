@@ -12,11 +12,16 @@ $ npm install epic-video-comparator --save
 
 # Using it as CommonJS module
 ```
-import { XX } from '@epiclabs/epic-video-comparator';
-
+import { Comparator } from '@epiclabs/epic-video-comparator';
 ...
+const comparatorConfig = {
+    leftUrl: 'https://video.lightflow.media/dash/standard/56c2bf64-9faf-4d81-9ad1-9c21c278806a/manifest.mpd',
+    rightUrl: 'https://video.lightflow.media/hls/56c2bf64-9faf-4d81-9ad1-9c21c278806a/master.m3u8',
+    mediaControls: true,
+    loop: true,
+};
+const myComp = new Comparator(comparatorConfig, document.getElementById('comparator-container'));
 
-TBD
 ```
 
 # Using it as UMD module within ```<script>``` tag
@@ -28,9 +33,19 @@ TBD
 </head>
 <body>
     ...
-    TBD
+    <div id="comparator-container"></div>
     ...
-    TBD
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var comparatorConfig = {
+                leftUrl: 'https://video.lightflow.media/dash/standard/56c2bf64-9faf-4d81-9ad1-9c21c278806a/manifest.mpd',
+                rightUrl: 'https://video.lightflow.media/hls/56c2bf64-9faf-4d81-9ad1-9c21c278806a/master.m3u8',
+                mediaControls: true,
+                loop: true,
+            };
+            window.myComp = new evc.Comparator(comparatorConfig, document.getElementById('comparator-container'));
+        });
+    </script>
     ...
 </body>
 ```
@@ -47,7 +62,7 @@ $ npm run build
 
 ## Methods
 
-- **newComparator(TBD)**
+- **new Comparator(config: IComparatorConfig, container: HTMLDivElement)**
 
   Creates a new instance of epic-video-comparator.
   
@@ -61,35 +76,48 @@ $ npm run build
 
 - **togglePlayPause()**
 
-  Switch the playing/pause status.
+  Switches the playing/pause status.
 
 - **seek(time: number)**
 
-  Set both players' playback to the same time position.
+  Sets both players' playback to the same time position.
 
 - **reload()**
 
-  Destroy and reload the epic-video-comparator.
+  Destroys and reload the epic-video-comparator.
 
-- **fullScreen()**
+- **toggleFullScreen()**
 
-  Enter fullscreen mode.
+  Enters / exits fullscreen mode.
 
 - **setRenditionKbps(player: 'left' | 'right', kbps: number): IRendition**
 
-  Set a desired rendition given as Kbps on one of the players.
+  Sets a desired rendition given as Kbps on one of the players.
 
 - **setRenditionIndex(player: 'left' | 'right', index: number): IRendition**
 
-  Set a desired rendition given as index number on one of the players. The order will be the order of the array returned by *getRenditions* method.
+  Sets a desired rendition given as index number on one of the players. The order will be the order of the array returned by *getRenditions* method.
 
 - **getRenditions(player: 'left' | 'right'): IRendition[]**
 
-  Retrieve the list of available renditions of one of the players.
+  Retrieves the list of available renditions of one of the players.
+
+- **togggleStats(): void**
+
+  Shows / Hides the stats boxes.
+
+- **updateStats(innerLeft: string, innerRight: string): void**
+  
+  Sets the given content to each one of the players' stats box. It will overwrite any stat given by this library as default. It is recommended to be used within a `setInterval`. 
+  
+- **destroy(): void**
+
+  Removes all DOM elements and binding listeners.
 
   
 ## Object interfaces
 
-| Name | Properties |
-| ---- | ---------- |
-| IPlayerConfig | TBD<br>TBD |
+| Name | Properties | Default value |
+| ---- | ---------- |:-------------:|
+| IComparatorConfig | leftUrl: string;<br>loop?: boolean; <br>rightUrl: string;<br>mediaControls?: boolean;<br>stats?: IStatsConfig / boolean  | - <br> true <br> - <br> true <br> IStatsConfig defaults | 
+| IStatsConfig | showDuration?: boolean;<br>showBitrate?: boolean;<br>showResolution?: boolean;<br>showVideoCodec?: boolean;<br>showAudioCodec?: boolean;<br>showDroppedFrames?: boolean;<br>showBuffered?: boolean;<br>showStartupTime?: boolean;<br>custom?: boolean; | true <br> true <br> true <br>  true <br>  true <br>  true <br>  true <br>  true <br>  false |
