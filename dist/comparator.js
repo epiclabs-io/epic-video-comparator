@@ -494,7 +494,9 @@ var Comparator = /** @class */ (function () {
         this.resizePlayers();
         this.populateQualitySelector();
         this.updatePlayersData();
-        this.play();
+        if (this.config.autoplay !== false) {
+            this.play();
+        }
     };
     Comparator.prototype.onEnded = function () {
         if (this.config.loop !== false) {

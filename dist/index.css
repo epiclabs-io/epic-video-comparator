@@ -63,6 +63,7 @@
   width: 50%;
 }
 .evc-container .evc-wrapper .evc-left-video-wrapper .evc-video {
+  display: block;
   width: 200%;
   position: relative;
 }
@@ -71,6 +72,7 @@
   position: inherit;
 }
 .evc-container .evc-wrapper .evc-right-video-wrapper .evc-video {
+  display: block;
   width: 100%;
 }
 .evc-container .evc-wrapper .evc-quality-selector-popup-wrapper {
