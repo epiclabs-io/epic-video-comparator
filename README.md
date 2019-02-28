@@ -119,5 +119,5 @@ $ npm run build
 
 | Name | Properties | Default value |
 | ---- | ---------- |:-------------:|
-| IComparatorConfig | leftUrl: string;<br>loop?: boolean; <br>rightUrl: string;<br>mediaControls?: boolean;<br>stats?: IStatsConfig / boolean  | - <br> true <br> - <br> true <br> IStatsConfig defaults | 
+| IComparatorConfig | autoplay?: boolean;<br>leftUrl: string;<br>loop?: boolean; <br>rightUrl: string;<br>mediaControls?: boolean;<br>stats?: IStatsConfig / boolean  | true <br> - <br> true <br> - <br> true <br> IStatsConfig defaults | 
 | IStatsConfig | showDuration?: boolean;<br>showBitrate?: boolean;<br>showResolution?: boolean;<br>showVideoCodec?: boolean;<br>showAudioCodec?: boolean;<br>showDroppedFrames?: boolean;<br>showBuffered?: boolean;<br>showStartupTime?: boolean;<br>custom?: boolean; | true <br> true <br> true <br>  true <br>  true <br>  true <br>  true <br>  true <br>  false |

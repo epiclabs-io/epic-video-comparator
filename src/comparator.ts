@@ -566,7 +566,9 @@ export class Comparator {
     this.resizePlayers();
     this.populateQualitySelector();
     this.updatePlayersData();
-    this.play();
+    if (this.config.autoplay !== false) {
+      this.play();
+    }
   }
 
   private onEnded(): void {
@@ -686,7 +688,7 @@ export class Comparator {
     this.isFullScreen = !this.isFullScreen;
     this.toggleFullScreenClasses();
     this.resizePlayers();
-  };
+  }
 
   private toggleFullScreenClasses(): void {
     this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0].classList.toggle('full-screen-mode');
@@ -699,5 +701,5 @@ export class Comparator {
     const leftWrapper = (wrapper.getElementsByClassName(`${Comparator.LIB_PREFIX}left-video-wrapper`)[0] as HTMLDivElement);
     leftWrapper.style.width = (wrapperWidth / 2) + 'px';
     leftWrapper.getElementsByTagName('video')[0].style.width = wrapperWidth + 'px';
-  };
+  }
 }
