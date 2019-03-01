@@ -1,0 +1,18 @@
+sudo: required
+
+dist: trusty
+
+language: node_js
+
+node_js:
+  - stable
+
+branches:
+  only:
+    - master
+
+before_script:
+  - npm install
+
+script:
+  - npm run build && npm t

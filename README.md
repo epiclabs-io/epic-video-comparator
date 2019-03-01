@@ -1,4 +1,4 @@
-# epic-video-comparator
+# Epic Video Comparator ·  ![Travis CI Status](https://api.travis-ci.org/epiclabs-io/epic-video-comparator.svg?branch=master)
 
 JS library to create a video comparator, i.e., two overlaped and syncrhonized video players each one with an independent source.
 
