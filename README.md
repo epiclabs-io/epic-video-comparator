@@ -1,6 +1,6 @@
 # Epic Video Comparator ·  ![Travis CI Status](https://api.travis-ci.org/epiclabs-io/epic-video-comparator.svg?branch=master)
 
-JS library to create a video comparator, i.e., two overlaped and syncrhonized video players each one with an independent source.
+JS library to create a video comparator, i.e., two overlaped and syncrhonized video players each one with an independent source. It is based on [epic-video-player](https://www.npmjs.com/package/@epiclabs/epic-video-player) library, which currently supports [dashjs](https://github.com/Dash-Industry-Forum/dash.js) and [hls.js](https://github.com/video-dev/hls.js).
 
 ![video-comparator-overview](https://user-images.githubusercontent.com/467658/53631764-8f6f6c00-3c13-11e9-9f0f-638f6d0a39d8.png)
 
@@ -21,8 +21,8 @@ $ npm install epic-video-comparator --save
 import { Comparator } from '@epiclabs/epic-video-comparator';
 ...
 const comparatorConfig = {
-    leftUrl: 'https://video.lightflow.media/dash/standard/56c2bf64-9faf-4d81-9ad1-9c21c278806a/manifest.mpd',
-    rightUrl: 'https://video.lightflow.media/hls/56c2bf64-9faf-4d81-9ad1-9c21c278806a/master.m3u8',
+    leftUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
+    rightUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
     mediaControls: true,
     loop: true,
 };
@@ -44,8 +44,8 @@ const myComp = new Comparator(comparatorConfig, document.getElementById('compara
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
             var comparatorConfig = {
-                leftUrl: 'https://video.lightflow.media/dash/standard/56c2bf64-9faf-4d81-9ad1-9c21c278806a/manifest.mpd',
-                rightUrl: 'https://video.lightflow.media/hls/56c2bf64-9faf-4d81-9ad1-9c21c278806a/master.m3u8',
+                leftUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
+                rightUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
                 mediaControls: true,
                 loop: true,
             };
