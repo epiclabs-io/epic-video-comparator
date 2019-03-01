@@ -2,6 +2,12 @@
 
 JS library to create a video comparator, i.e., two overlaped and syncrhonized video players each one with an independent source.
 
+![video-comparator-overview](https://user-images.githubusercontent.com/467658/53631764-8f6f6c00-3c13-11e9-9f0f-638f6d0a39d8.png)
+
+For ABR sources, it is also possible to select the desired rendition to be played:
+
+![video-comparator-quality-selector](https://user-images.githubusercontent.com/467658/53633279-52a57400-3c17-11e9-8942-dacb3b78d53e.png)
+
 # Installation
 
 Install the dependency into your project
@@ -108,7 +114,7 @@ $ npm run build
 
 - **updateStats(innerLeft: string, innerRight: string): void**
   
-  Sets the given content to each one of the players' stats box. It will overwrite any stat given by this library as default. It is recommended to be used within a `setInterval`. 
+  Sets the given content to each one of the players' stats box. It will overwrite any stat given by this library as default. It is recommended to be used within a `setInterval`.
   
 - **destroy(): void**
 

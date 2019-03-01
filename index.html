@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>epic-video-player demo</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <script src="bundle/index.min.js"></script>
   <link rel="stylesheet" href="index.css">
   <style>
     .comparator {
       width: 600px;
+    }
+
+    * {
+      font-family: 'Roboto', sans-serif;
     }
   </style>
 </head>
@@ -21,10 +26,12 @@
 <script type="text/javascript">
   document.addEventListener('DOMContentLoaded', function () {
     var comparatorConfig = {
-      leftUrl: 'https://video.lightflow.media/dash/standard/56c2bf64-9faf-4d81-9ad1-9c21c278806a/manifest.mpd',
-      rightUrl: 'https://video.lightflow.media/hls/56c2bf64-9faf-4d81-9ad1-9c21c278806a/master.m3u8',
+      leftUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
+      rightUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
       mediaControls: true,
       loop: true,
+      autoplay: true,
+      stats: false,
     };
     window.myComp = new evc.Comparator(comparatorConfig, document.getElementById('comparator-container'));
   });
