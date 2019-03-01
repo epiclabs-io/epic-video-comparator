@@ -7,7 +7,7 @@ export class PidController {
   private iMax: number;
   private currentValue: number;
 
-  constructor(private kP: number, private kI: number, private kD: number, private target: number) {
+  constructor(private kP1: number, private kI: number, private kD: number, private target: number) {
     // PID constants
     this.kP = kP || 1;
     this.kI = kI || 0;
