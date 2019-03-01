@@ -453,7 +453,9 @@ export class Comparator {
    */
 
   private initListeners(): void {
-    screenfull.on('change', this.onFullscreenChange);
+    if (screenfull && screenfull.on) {
+      screenfull.on('change', this.onFullscreenChange);
+    }
 
     this.leftPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('left');
     this.leftPlayer.htmlPlayer.onended = () => this.onEnded();
@@ -513,7 +515,9 @@ export class Comparator {
   }
 
   private destroyListeners(): void {
-    screenfull.off('change', this.onFullscreenChange);
+    if (screenfull && screenfull.off) {
+      screenfull.off('change', this.onFullscreenChange);
+    }
 
     clearInterval(this.statsInterval);
 
