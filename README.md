@@ -1,10 +1,6 @@
 # Epic Video Comparator ·  ![Travis CI Status](https://api.travis-ci.org/epiclabs-io/epic-video-comparator.svg?branch=master)
 
-<<<<<<< HEAD
-Javascript library which implements a video comparator component: two overlaped and synchronized video players each one playing an independent source. Both MPEG-DASH and HLS type of streams are supported.
-=======
-JS library to create a video comparator, i.e., two overlaped and syncrhonized video players each one with an independent source. It is based on [epic-video-player](https://www.npmjs.com/package/@epiclabs/epic-video-player) library, which currently supports [dashjs](https://github.com/Dash-Industry-Forum/dash.js) and [hls.js](https://github.com/video-dev/hls.js).
->>>>>>> 07280d5... Updating travis configuration and README
+Javascript library which implements a video comparator component: two overlaped and synchronized video players each one playing an independent source. It is based on [epic-video-player](https://www.npmjs.com/package/@epiclabs/epic-video-player) library, which currently supports MPEG-DASH([dash.js](https://github.com/Dash-Industry-Forum/dash.js)) and HLS ([hls.js](https://github.com/video-dev/hls.js)) type of streams.
 
 ![video-comparator-overview](https://user-images.githubusercontent.com/467658/53631764-8f6f6c00-3c13-11e9-9f0f-638f6d0a39d8.png)
 
