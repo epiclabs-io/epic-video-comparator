@@ -9,7 +9,7 @@
     "_transpile": "tsc",
     "_bundle": "webpack",
     "_styles": "sass src/styles/index.scss dist/index.css",
-    "_npm_ready": "cp-cli CHANGELOG.md ./dist/CHANGELOG.md && cp-cli LICENSE ./dist/LICENSE && cp-cli package.json ./dist/package.json && cp-cli README.md ./dist/README.md && cp-cli demo.html ./dist/demo.html",
+    "_npm_ready": "cp-cli CHANGELOG.md ./dist/CHANGELOG.md && cp-cli LICENSE ./dist/LICENSE && cp-cli package.json ./dist/package.json && cp-cli README.md ./dist/README.md && cp-cli index.html ./dist/index.html",
     "build": "run-s _clean _bundle _transpile _styles _npm_ready",
     "_lint": "tslint -c tslint.json 'src/**/*.ts'",
     "_utest": "jest --coverage --env=jsdom",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/epiclabs-io/epic-video-player.git"
+    "url": "git+https://github.com/epiclabs-io/epic-video-comparator.git"
   },
   "keywords": [
     "epic",
@@ -33,9 +33,9 @@
   "author": "Adrian Caballero <https://github.com/adripanico>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/epiclabs-io/epic-video-player/issues"
+    "url": "https://github.com/epiclabs-io/epic-video-comparator/issues"
   },
-  "homepage": "https://github.com/epiclabs-io/epic-video-player#readme",
+  "homepage": "https://github.com/epiclabs-io/epic-video-comparator#readme",
   "dependencies": {
     "@epiclabs/epic-video-player": "0.0.9",
     "screenfull": "4.0.0",
@@ -58,8 +58,8 @@
     "tslint": "5.12.1",
     "typescript": "3.2.4",
     "uglifyjs-webpack-plugin": "2.1.1",
-    "webpack": "4.29.0",
-    "webpack-cli": "3.2.1"
+    "webpack": "4.29.6",
+    "webpack-cli": "3.2.3"
   },
   "publishConfig": {
     "access": "public"
