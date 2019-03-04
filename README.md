@@ -1,6 +1,6 @@
-# Epic Video Comparator ·  ![Travis CI Status](https://api.travis-ci.org/epiclabs-io/epic-video-comparator.svg?branch=master)
+# Epic Video Comparator ·  ![Travis CI Status](https://api.travis-ci.org/epiclabs-io/epic-video-comparator.svg?branch=dev)
 
-Javascript library which implements a video comparator component: two overlaped and synchronized video players each one playing an independent source. It is based on [epic-video-player](https://www.npmjs.com/package/@epiclabs/epic-video-player) library, which currently supports MPEG-DASH([dash.js](https://github.com/Dash-Industry-Forum/dash.js)) and HLS ([hls.js](https://github.com/video-dev/hls.js)) type of streams.
+Javascript library which implements a video comparator component: two overlaped and synchronized video players each one playing an independent source. It is based on [epic-video-player](https://www.npmjs.com/package/@epiclabs/epic-video-player) library, which currently supports native HTML video (WebM, Ogg Theora Vorbis, Ogg Opus, Ogg FLAC and MP4 H.264), MPEG-DASH([dash.js](https://github.com/Dash-Industry-Forum/dash.js)) and HLS ([hls.js](https://github.com/video-dev/hls.js)) streams.
 
 ![video-comparator-overview](https://user-images.githubusercontent.com/467658/53631764-8f6f6c00-3c13-11e9-9f0f-638f6d0a39d8.png)
 
@@ -96,13 +96,21 @@ $ npm run build
 
   Enters / exits fullscreen mode.
 
-- **setRenditionKbps(player: 'left' | 'right', kbps: number): IRendition**
+- **setRenditionByKbps(player: 'left' | 'right', kbps: number): IRendition**
 
   Sets a desired rendition given as Kbps on one of the players.
 
-- **setRenditionIndex(player: 'left' | 'right', index: number): IRendition**
+- ~~setRenditionKbps(player: 'left' | 'right', kbps: number): IRendition~~
+
+  This method has been deprecated since version 0.0.2. Use *setRenditionByKbps* instead.
+
+- **setRenditionByIndex(player: 'left' | 'right', index: number): IRendition**
 
   Sets a desired rendition given as index number on one of the players. The order will be the order of the array returned by *getRenditions* method.
+
+- ~~setRenditionIndex(player: 'left' | 'right', index: number): IRendition~~
+
+  This method has been deprecated since version 0.0.2. Use *setRenditionByIndex* instead.
 
 - **getRenditions(player: 'left' | 'right'): IRendition[]**
 

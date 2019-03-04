@@ -83,7 +83,7 @@ $splitter-color: '#ffffff';
       z-index: 1;
       width: 50%;
 
-      .#{$library-prefix}video {
+      .#{$library-prefix}left-video {
         display: block;
         width: 200%;
         position: relative;
@@ -94,7 +94,7 @@ $splitter-color: '#ffffff';
       width: 100%;
       position: inherit;
 
-      .#{$library-prefix}video {
+      .#{$library-prefix}right-video {
         display: block;
         width: 100%;
       }

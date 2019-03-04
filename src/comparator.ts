@@ -79,7 +79,14 @@ export class Comparator {
     this.resizePlayers();
   }
 
+  /**
+   * @deprecated since version 0.0.2
+   */
   public setRenditionKbps(player: 'left' | 'right' | Player<PlayerClassType>, kbps: number): IRendition {
+    return this.setRenditionByKbps(player, kbps);
+  }
+
+  public setRenditionByKbps(player: 'left' | 'right' | Player<PlayerClassType>, kbps: number): IRendition {
     if (typeof kbps !== 'number') {
       return;
     }
@@ -109,7 +116,14 @@ export class Comparator {
     return renditions[renditionIndex];
   }
 
+  /**
+   * @deprecated since version 0.0.2
+   */
   public setRenditionIndex(player: 'left' | 'right' | Player<PlayerClassType>, index: number): IRendition {
+    return this.setRenditionByIndex(player, index);
+  }
+
+  public setRenditionByIndex(player: 'left' | 'right' | Player<PlayerClassType>, index: number): IRendition {
     if (typeof index !== 'number') {
       return;
     }
@@ -248,7 +262,9 @@ export class Comparator {
 
     this.fullScreenWrapper.appendChild(this.createLoadingSpinner());
     this.fullScreenWrapper.appendChild(wrapper);
-    this.fullScreenWrapper.appendChild(this.createMediaControls());
+    if (this.config.mediaControls !== false) {
+      this.fullScreenWrapper.appendChild(this.createMediaControls());
+    }
 
     this.leftPlayer = newPlayer(this.config.leftUrl, leftVideoWrapper.getElementsByTagName('video')[0], this.leftPlayerData.config);
     this.rightPlayer = newPlayer(this.config.rightUrl, rightVideoWrapper.getElementsByTagName('video')[0], this.rightPlayerData.config);
@@ -258,7 +274,7 @@ export class Comparator {
     const videoWrapper = document.createElement('div');
     videoWrapper.className = `${Comparator.LIB_PREFIX}${player}-video-wrapper`;
     const videoElement = document.createElement('video');
-    videoElement.className = `${Comparator.LIB_PREFIX}video`;
+    videoElement.className = `${Comparator.LIB_PREFIX}${player}-video`;
     videoElement.muted = true;
     videoElement.autoplay = false;
     videoWrapper.appendChild(videoElement);
@@ -281,10 +297,6 @@ export class Comparator {
   }
 
   private createMediaControls(): HTMLDivElement {
-    if (this.config.mediaControls === false) {
-      return;
-    }
-
     const controls = document.createElement('div');
     controls.className = `${Comparator.LIB_PREFIX}media-controls`;
 
@@ -385,6 +397,10 @@ export class Comparator {
   }
 
   private populateQualitySelector(): void {
+    if (this.config.mediaControls === false) {
+      return;
+    }
+
     const popup = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}quality-selector-popup`)[0];
 
     while (popup.firstChild) {
@@ -457,21 +473,21 @@ export class Comparator {
       screenfull.on('change', this.onFullscreenChange);
     }
 
-    this.leftPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('left');
-    this.leftPlayer.htmlPlayer.onended = () => this.onEnded();
-    this.leftPlayer.htmlPlayer.onloadstart = () => this.onLoadStart();
-    this.leftPlayer.htmlPlayer.onpause = () => this.onPause();
-    this.leftPlayer.htmlPlayer.onplay = () => this.onPlay();
-    this.leftPlayer.htmlPlayer.onseeked = () => this.onSeeked('left');
-    this.leftPlayer.htmlPlayer.onseeking = () => this.onSeeking();
-    this.leftPlayer.htmlPlayer.ontimeupdate = () => this.onTimeUpdate();
+    this.leftPlayer.htmlPlayer.addEventListener('canplaythrough', this.onCanPlayThrough);
+    this.leftPlayer.htmlPlayer.addEventListener('ended', this.onEnded);
+    this.leftPlayer.htmlPlayer.addEventListener('loadstart', this.onLoadStart);
+    this.leftPlayer.htmlPlayer.addEventListener('pause', this.onPause);
+    this.leftPlayer.htmlPlayer.addEventListener('play', this.onPlay);
+    this.leftPlayer.htmlPlayer.addEventListener('seeked', this.onSeeked);
+    this.leftPlayer.htmlPlayer.addEventListener('seeking', this.onSeeking);
+    this.leftPlayer.htmlPlayer.addEventListener('timeupdate', this.onTimeUpdate);
 
-    this.rightPlayer.htmlPlayer.oncanplaythrough = () => this.onCanPlayThrough('right');
-    this.rightPlayer.htmlPlayer.onended = () => this.onEnded();
-    this.leftPlayer.htmlPlayer.onpause = () => this.onPause();
-    this.leftPlayer.htmlPlayer.onplay = () => this.onPlay();
-    this.rightPlayer.htmlPlayer.onseeked = () => this.onSeeked('right');
-    this.rightPlayer.htmlPlayer.onseeking = () => this.onSeeking();
+    this.rightPlayer.htmlPlayer.addEventListener('canplaythrough', this.onCanPlayThrough);
+    this.rightPlayer.htmlPlayer.addEventListener('ended', this.onEnded);
+    this.leftPlayer.htmlPlayer.addEventListener('pause', this.onPause);
+    this.leftPlayer.htmlPlayer.addEventListener('play', this.onPlay);
+    this.rightPlayer.htmlPlayer.addEventListener('seeked', this.onSeeked);
+    this.rightPlayer.htmlPlayer.addEventListener('seeking', this.onSeeking);
 
     const wrapper = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0] as HTMLDivElement;
     const popupWrapper = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}quality-selector-popup-wrapper`)[0];
@@ -491,7 +507,9 @@ export class Comparator {
       if (!this.isSplitterSticked) {
         moveSplit(event);
       }
-      popupWrapper.classList.toggle('moving-split');
+      if (this.config.mediaControls !== false) {
+        popupWrapper.classList.toggle('moving-split');
+      }
       leftStatsWrappers.classList.toggle('moving-split');
       rightStatsWrappers.classList.toggle('moving-split');
     };
@@ -521,21 +539,21 @@ export class Comparator {
 
     clearInterval(this.statsInterval);
 
-    this.leftPlayer.htmlPlayer.oncanplaythrough = undefined;
-    this.leftPlayer.htmlPlayer.onended = undefined;
-    this.leftPlayer.htmlPlayer.onloadstart = undefined;
-    this.leftPlayer.htmlPlayer.onpause = undefined;
-    this.leftPlayer.htmlPlayer.onplay = undefined;
-    this.leftPlayer.htmlPlayer.onseeked = undefined;
-    this.leftPlayer.htmlPlayer.onseeking = undefined;
-    this.leftPlayer.htmlPlayer.ontimeupdate = undefined;
+    this.leftPlayer.htmlPlayer.removeEventListener('canplaythrough', this.onCanPlayThrough);
+    this.leftPlayer.htmlPlayer.removeEventListener('ended', this.onEnded);
+    this.leftPlayer.htmlPlayer.removeEventListener('loadstart', this.onLoadStart);
+    this.leftPlayer.htmlPlayer.removeEventListener('pause', this.onPause);
+    this.leftPlayer.htmlPlayer.removeEventListener('play', this.onPlay);
+    this.leftPlayer.htmlPlayer.removeEventListener('seeked', this.onSeeked);
+    this.leftPlayer.htmlPlayer.removeEventListener('seeking', this.onSeeking);
+    this.leftPlayer.htmlPlayer.removeEventListener('timeupdate', this.onTimeUpdate);
 
-    this.rightPlayer.htmlPlayer.oncanplaythrough = undefined;
-    this.rightPlayer.htmlPlayer.onended = undefined;
-    this.leftPlayer.htmlPlayer.onpause = undefined;
-    this.leftPlayer.htmlPlayer.onplay = undefined;
-    this.rightPlayer.htmlPlayer.onseeked = undefined;
-    this.rightPlayer.htmlPlayer.onseeking = undefined;
+    this.rightPlayer.htmlPlayer.removeEventListener('canplaythrough', this.onCanPlayThrough);
+    this.rightPlayer.htmlPlayer.removeEventListener('ended', this.onEnded);
+    this.leftPlayer.htmlPlayer.removeEventListener('pause', this.onPause);
+    this.leftPlayer.htmlPlayer.removeEventListener('play', this.onPlay);
+    this.rightPlayer.htmlPlayer.removeEventListener('seeked', this.onSeeked);
+    this.rightPlayer.htmlPlayer.removeEventListener('seeking', this.onSeeking);
 
     const wrapper = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0] as HTMLDivElement;
     wrapper.onmousemove = undefined;
@@ -545,19 +563,19 @@ export class Comparator {
     window.removeEventListener('resize', this.resizePlayers);
   }
 
-  private onCanPlayThrough(player: 'left' | 'right') {
+  private onCanPlayThrough = (evt: Event): void => {
     if (!this.leftPlayerData.isInitialized || !this.rightPlayerData.isInitialized) {
-      if (player === 'left') {
+      if ((evt.target as HTMLVideoElement).classList.contains(`${Comparator.LIB_PREFIX}left-video`)) {
         this.leftPlayerData.isInitialized = true;
         this.leftPlayerData.duration = this.leftPlayer.htmlPlayer.duration;
-        this.leftPlayer.htmlPlayer.oncanplay = undefined;
+        this.leftPlayer.htmlPlayer.oncanplaythrough = undefined;
         if (this.rightPlayerData.isInitialized) {
           this.onCanPlayThroughBoth();
         }
       } else {
         this.rightPlayerData.isInitialized = true;
         this.rightPlayerData.duration = this.leftPlayer.htmlPlayer.duration;
-        this.rightPlayer.htmlPlayer.oncanplay = undefined;
+        this.rightPlayer.htmlPlayer.oncanplaythrough = undefined;
         if (this.leftPlayerData.isInitialized) {
           this.onCanPlayThroughBoth();
         }
@@ -572,21 +590,25 @@ export class Comparator {
     this.updatePlayersData();
     if (this.config.autoplay !== false) {
       this.play();
+    } else {
+      setTimeout(() => {
+        this.pause();
+      }, 1000);
     }
   }
 
-  private onEnded(): void {
+  private onEnded = (evt: Event): void => {
     if (this.config.loop !== false) {
       this.reload();
     }
   }
 
-  private onLoadStart() {
+  private onLoadStart = (evt: Event): void => {
     this.container.classList.add('loaded-metadata');
-    this.leftPlayer.htmlPlayer.oncanplay = undefined;
   }
 
-  private onSeeked(player: 'left' | 'right'): void {
+  private onSeeked = (evt: Event): void => {
+    const player = (evt.target as HTMLVideoElement).classList.contains(`${Comparator.LIB_PREFIX}left-video`) ? 'left' : 'right';
     if (player === 'left' && !this.rightPlayer.htmlPlayer.seeking || player === 'right' && !this.leftPlayer.htmlPlayer.seeking) {
       this.play();
     } else {
@@ -595,13 +617,12 @@ export class Comparator {
     }
   }
 
-  private onSeeking(): void {
+  private onSeeking = (evt: Event): void => {
     this.pause();
     this.showSpinner();
   }
 
-  private onPlay() {
-    this.play();
+  private onPlay = (evt: Event): void => {
     const playPause = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}play-pause`)[0] as HTMLDivElement;
     if (playPause !== undefined) {
       playPause.classList.add('playing');
@@ -609,8 +630,7 @@ export class Comparator {
     }
   }
 
-  private onPause() {
-    this.pause();
+  private onPause = (evt: Event): void => {
     const playPause = this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}play-pause`)[0] as HTMLDivElement;
     if (playPause !== undefined) {
       playPause.classList.remove('playing');
@@ -618,7 +638,7 @@ export class Comparator {
     }
   }
 
-  private onTimeUpdate() {
+  private onTimeUpdate = (evt: Event): void => {
     if (!this.pidController) {
       this.setPidController();
     }

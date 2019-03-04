@@ -5,6 +5,14 @@ This document will track the changes of this project, based on [Keep a Changelog
 ## Wanted features / Roadmap
 - 
 
+## [0.0.2]
+### [Changed]
+- *setRenditionIndex* has been deprecated. Use *setRenditionByIndex* instead.
+- *setRenditionKbps* has been deprecated. Use *setRenditionByKbps* instead.
+### [Fixed]
+- Autoplay config attribute not working as expected.
+- Disabling controls not working as expected.
+
 ## [0.0.1]
-## [Added]
+### [Added]
 - Initial version.
