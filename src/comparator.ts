@@ -717,6 +717,18 @@ export class Comparator {
   private toggleFullScreenClasses(): void {
     this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0].classList.toggle('full-screen-mode');
     this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}media-controls`)[0].classList.toggle('full-screen-mode');
+
+    if (this.isFullScreen === true) {
+      const width = this.leftPlayer.htmlPlayer.videoWidth;
+      const height = this.leftPlayer.htmlPlayer.videoHeight;
+      const maxWidth = `calc(100vh * ${width} / ${height} - 100px)`;
+
+      (this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0] as HTMLDivElement).style.maxWidth = maxWidth;
+      (this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}media-controls`)[0] as HTMLDivElement).style.maxWidth = maxWidth;
+    } else {
+      (this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0] as HTMLDivElement).style.maxWidth = 'unset';
+      (this.container.getElementsByClassName(`${Comparator.LIB_PREFIX}media-controls`)[0] as HTMLDivElement).style.maxWidth = 'unset';
+    }
   }
 
   private resizePlayers = () => {
