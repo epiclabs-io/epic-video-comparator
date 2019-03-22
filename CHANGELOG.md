@@ -3,14 +3,14 @@
 This document will track the changes of this project, based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) proposed schema.
 
 ## Wanted features / Roadmap
-- Add zoom feature
-- Make mobile-aware the drag feature
-- Make mobile-aware the fullscreen feature (i.e., rotate the video in mobile devices)
+- Add zoom feature.
+- Make mobile-aware the drag feature.
+- Make mobile-aware the fullscreen feature (i.e., rotate the video in mobile devices).
 
-## [Unpublished]
+## [0.0.4]
 ### [Fixed]
-- Right stats position fixed on fullscreen
-- Fullscreen mode now works fine for any video aspect ratio
+- Right stats position fixed on fullscreen.
+- Fullscreen mode now works fine for any video aspect ratio.
 
 ## [0.0.3]
 ### [Added]
