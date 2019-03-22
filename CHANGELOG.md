@@ -7,6 +7,10 @@ This document will track the changes of this project, based on [Keep a Changelog
 - Make mobile-aware the drag feature.
 - Make mobile-aware the fullscreen feature (i.e., rotate the video in mobile devices).
 
+## [Unpublished]
+### [Added]
+- Auto rotating screen on mobile devices.
+
 ## [0.0.4]
 ### [Fixed]
 - Right stats position fixed on fullscreen.

@@ -70,11 +70,21 @@ export class Comparator {
         this.isFullScreen = !this.isFullScreen;
         this.toggleFullScreen();
       });
+      try {
+        screen.orientation.unlock();
+      } catch (e) {
+        // Screen API not available
+      }
     } else {
       screenfull.request(this.container).catch(() => {
         this.isFullScreen = !this.isFullScreen;
         this.toggleFullScreen();
       });
+      try {
+        screen.orientation.lock('landscape-primary');
+      } catch (e) {
+        // Screen API not available
+      }
     }
     this.resizePlayers();
   }
