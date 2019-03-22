@@ -92,7 +92,7 @@ $splitter-color: '#ffffff';
 
     .#{$library-prefix}right-video-wrapper {
       width: 100%;
-      position: inherit;
+      position: relative;
 
       .#{$library-prefix}right-video {
         display: block;
