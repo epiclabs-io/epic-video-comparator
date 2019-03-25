@@ -29,6 +29,7 @@
       leftUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
       rightUrl: 'https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.mpd',
     };
+    document.getElementById('comparator-container').addEventListener('created', () => console.log('created!'));
     window.myComp = new evc.Comparator(comparatorConfig, document.getElementById('comparator-container'));
   });
 </script>

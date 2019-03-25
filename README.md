@@ -2,7 +2,7 @@
 
 [LIVE DEMO](https://epiclabs-io.github.io/epic-video-comparator-demo/)
 
-Javascript library which implements a video comparator component: two overlaped and synchronized video players each one playing an independent source. It is based on [epic-video-player](https://www.npmjs.com/package/@epiclabs/epic-video-player) library, which currently supports native HTML video (WebM, Ogg Theora Vorbis, Ogg Opus, Ogg FLAC and MP4 H.264), MPEG-DASH([dash.js](https://github.com/Dash-Industry-Forum/dash.js)) and HLS ([hls.js](https://github.com/video-dev/hls.js)) streams.
+JavaScript library which implements a video comparator component: two overlapped and synchronized video players each one playing an independent source. It is based on [epic-video-player](https://www.npmjs.com/package/@epiclabs/epic-video-player) library, which currently supports native HTML video (WebM, Ogg Theora Vorbis, Ogg Opus, Ogg FLAC and MP4 H.264), MPEG-DASH([dash.js](https://github.com/Dash-Industry-Forum/dash.js)) and HLS ([hls.js](https://github.com/video-dev/hls.js)) streams.
 
 ![video-comparator-overview](https://user-images.githubusercontent.com/467658/53631764-8f6f6c00-3c13-11e9-9f0f-638f6d0a39d8.png)
 
@@ -130,6 +130,18 @@ $ npm run build
 
   Removes all DOM elements and binding listeners.
 
+## Events
+
+The events are binded to the comparator container. Usage example:
+
+```
+var container = document.getElementById('comparator-container');
+container.addEventListener('created', () => console.log('created!'));
+```
+
+| Event | Description |
+| ----- | ----------- |
+| created | Fires when the comparator is created (it occurs during comparator creation or reload but also when a new rendition is selected on any side). |
 
 ## Object interfaces
 

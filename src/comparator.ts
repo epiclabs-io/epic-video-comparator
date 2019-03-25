@@ -1,9 +1,9 @@
 import { IRendition, IStats, newPlayer, Player, PlayerClassType } from '@epiclabs/epic-video-player';
+import * as screenfull from 'screenfull';
 
+import { Events } from './events';
 import { IComparatorConfig, IPlayerData, IStatsConfig, StatsConfig } from './models';
 import { PidController } from './pid-controller';
-
-import * as screenfull from 'screenfull';
 
 export class Comparator {
   private static LIB_PREFIX = 'evc-';
@@ -22,7 +22,9 @@ export class Comparator {
   private isFullScreen = false;
   private statsInterval = undefined;
 
-  constructor(private config: IComparatorConfig, private container: HTMLDivElement) {
+  private createdEvent = new Event(Events.CREATED_EVENT);
+
+  constructor(public config: IComparatorConfig, public container: HTMLDivElement) {
     this.setInitialValues();
     this.createVideoComparator();
     this.initListeners();
@@ -197,7 +199,7 @@ export class Comparator {
     const statsConfig = this.config.stats as IStatsConfig;
 
     if (statsConfig.showDuration !== false && stats && stats.duration > 0) {
-      inner += `<p><b>Duration:</b> ${Math.round(stats.duration) } s</p>`;
+      inner += `<p><b>Duration:</b> ${Math.round(stats.duration)} s</p>`;
     }
 
     if (statsConfig.showDroppedFrames !== false && stats && stats.droppedFrames >= 0) {
@@ -278,6 +280,8 @@ export class Comparator {
 
     this.leftPlayer = newPlayer(this.config.leftUrl, leftVideoWrapper.getElementsByTagName('video')[0], this.leftPlayerData.config);
     this.rightPlayer = newPlayer(this.config.rightUrl, rightVideoWrapper.getElementsByTagName('video')[0], this.rightPlayerData.config);
+
+    this.container.dispatchEvent(this.createdEvent);
   }
 
   private createVideoPlayer(player: 'left' | 'right'): HTMLDivElement {
@@ -431,13 +435,13 @@ export class Comparator {
     }
 
     if (data.config.initialRenditionIndex === Comparator.DEFAULT_QUALITY_INDEX &&
-        data.config.initialRenditionKbps === Comparator.DEFAULT_QUALITY_KBPS) {
+      data.config.initialRenditionKbps === Comparator.DEFAULT_QUALITY_KBPS) {
       data.config.initialRenditionIndex = renditions.length - 1;
       data.config.initialRenditionKbps = renditions[renditions.length - 1].bitrate / 1000;
     }
 
     const listItemAuto = document.createElement('li');
-    listItemAuto.innerHTML = `${ data.config.initialRenditionIndex === -1 ? '> ' : ''}Auto`;
+    listItemAuto.innerHTML = `${data.config.initialRenditionIndex === -1 ? '> ' : ''}Auto`;
     listItemAuto.onclick = () => this.setAutoRendition(player);
     sideElementList.appendChild(listItemAuto);
 
@@ -445,7 +449,7 @@ export class Comparator {
       const listItem = document.createElement('li');
       const selected = data.config.initialRenditionIndex === i ? '> ' : '';
       const [width, height, kbps] = [renditions[i].width, renditions[i].height, Math.round(renditions[i].bitrate / 1000)];
-      listItem.innerHTML = `${ selected }${ width }x${ height } (${ kbps } kbps)`;
+      listItem.innerHTML = `${selected}${width}x${height} (${kbps} kbps)`;
       listItem.className = currentRendition && renditions[i].bitrate === currentRendition.bitrate ? 'current' : '';
       listItem.onclick = () => this.setRendition(player, i, renditions[i].bitrate);
       sideElementList.appendChild(listItem);
@@ -453,7 +457,7 @@ export class Comparator {
 
     const sideElement = document.createElement('div');
     const side = player === this.leftPlayer ? 'LEFT' : 'RIGHT';
-    sideElement.innerHTML = `<p><b>${ side }</b></p>`;
+    sideElement.innerHTML = `<p><b>${side}</b></p>`;
     sideElement.appendChild(sideElementList);
     popup.appendChild(sideElement);
   }

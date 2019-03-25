@@ -5,11 +5,11 @@ This document will track the changes of this project, based on [Keep a Changelog
 ## Wanted features / Roadmap
 - Add zoom feature.
 - Make mobile-aware the drag feature.
-- Make mobile-aware the fullscreen feature (i.e., rotate the video in mobile devices).
 
-## [Unpublished]
+## [0.0.5]
 ### [Added]
 - Auto rotating screen on mobile devices.
+- Dispatching event on comparator creation.
 
 ## [0.0.4]
 ### [Fixed]
