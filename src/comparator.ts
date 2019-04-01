@@ -245,6 +245,12 @@ export class Comparator {
   }
 
   private cleanVideoComparator(): void {
+    if (this.leftPlayer) {
+      this.leftPlayer.destroy();
+    }
+    if (this.rightPlayer) {
+      this.rightPlayer.destroy();
+    }
     while (this.container.firstChild) {
       this.container.removeChild(this.container.firstChild);
     }

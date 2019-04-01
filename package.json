@@ -1,6 +1,6 @@
 {
   "name": "@epiclabs/epic-video-comparator",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "JS library to create a video comparator, i.e., two overlaped and syncrhonized video players each one with an independent source.",
   "main": "./index.js",
   "types": "./index.d.ts",

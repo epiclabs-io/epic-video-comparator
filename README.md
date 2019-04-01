@@ -15,7 +15,7 @@ For ABR sources, it is also possible to select the desired rendition to be playe
 Install epic-video-comparator into your project
 
 ```
-$ npm install epic-video-comparator --save
+$ npm install @epiclabs/epic-video-comparator --save
 ```
 
 # Using it as CommonJS module
