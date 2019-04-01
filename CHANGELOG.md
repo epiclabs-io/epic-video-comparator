@@ -6,6 +6,10 @@ This document will track the changes of this project, based on [Keep a Changelog
 - Add zoom feature.
 - Make mobile-aware the drag feature.
 
+## [0.0.6]
+### [Fixed]
+- Comparator destroy not working as expected.
+
 ## [0.0.5]
 ### [Added]
 - Auto rotating screen on mobile devices.
