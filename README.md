@@ -142,6 +142,7 @@ container.addEventListener('created', () => console.log('created!'));
 | Event | Description |
 | ----- | ----------- |
 | created | Fires when the comparator is created (it occurs during comparator creation or reload but also when a new rendition is selected on any side). |
+| fullscreen_toggle | Fires when the comparator toggles its fullscreen mode. |
 
 ## Object interfaces
 
