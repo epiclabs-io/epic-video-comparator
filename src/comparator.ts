@@ -23,6 +23,7 @@ export class Comparator {
   private statsInterval = undefined;
 
   private createdEvent = new Event(Events.CREATED_EVENT);
+  private fullscreenToggle = new Event(Events.FULLSCREEN_TOGGLE_EVENT);
 
   constructor(public config: IComparatorConfig, public container: HTMLDivElement) {
     this.setInitialValues();
@@ -67,6 +68,7 @@ export class Comparator {
   }
 
   public toggleFullScreen(): void {
+    this.container.dispatchEvent(this.fullscreenToggle);
     if (this.isFullScreen) {
       screenfull.exit().catch(() => {
         this.isFullScreen = !this.isFullScreen;

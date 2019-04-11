@@ -6,6 +6,10 @@ This document will track the changes of this project, based on [Keep a Changelog
 - Add zoom feature.
 - Make mobile-aware the drag feature.
 
+## [0.0.7]
+### [Added]
+- Dispatching event on fullscreen mode toggled.
+
 ## [0.0.6]
 ### [Fixed]
 - Comparator destroy not working as expected.
