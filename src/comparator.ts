@@ -372,6 +372,9 @@ export class Comparator {
 
   private onQualityIconClick($event: MouseEvent, icon: HTMLDivElement, popup: HTMLDivElement): void {
     popup.classList.toggle('visible');
+    if (!this.isSplitterSticked) {
+      document.getElementsByClassName(`${Comparator.LIB_PREFIX}wrapper`)[0]['onclick']()
+    }
     icon.classList.toggle('active');
   }
 
