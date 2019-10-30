@@ -375,6 +375,7 @@ export class Comparator {
     if (!this.isSplitterSticked) {
       this.videoWrapper.click();  
     }
+    popup.classList.toggle('visible');	
     icon.classList.toggle('active');
   }
 
