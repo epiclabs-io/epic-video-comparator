@@ -14,7 +14,7 @@ export class Comparator {
   public leftPlayer: Player<PlayerClassType>;
   public rightPlayer: Player<PlayerClassType>;
   
-  private videoWrapper: HTMLElement;
+  private videoWrapper: HTMLDivElement;
   private leftPlayerData: IPlayerData = {};
   private rightPlayerData: IPlayerData = {};
   private isSplitterSticked = true;
