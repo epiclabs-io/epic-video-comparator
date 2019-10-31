@@ -13,7 +13,8 @@ export class Comparator {
 
   public leftPlayer: Player<PlayerClassType>;
   public rightPlayer: Player<PlayerClassType>;
-
+  
+  private videoWrapper: HTMLElement;
   private leftPlayerData: IPlayerData = {};
   private rightPlayerData: IPlayerData = {};
   private isSplitterSticked = true;
@@ -273,15 +274,15 @@ export class Comparator {
     this.fullScreenWrapper.className = `${Comparator.LIB_PREFIX}full-screen-wrapper`;
     this.container.appendChild(this.fullScreenWrapper);
 
-    const wrapper = document.createElement('div');
-    wrapper.className = `${Comparator.LIB_PREFIX}wrapper`;
+    this.videoWrapper = document.createElement('div');
+    this.videoWrapper.className = `${Comparator.LIB_PREFIX}wrapper`;
     const leftVideoWrapper = this.createVideoPlayer('left');
     const rightVideoWrapper = this.createVideoPlayer('right');
-    wrapper.appendChild(leftVideoWrapper);
-    wrapper.appendChild(rightVideoWrapper);
+    this.videoWrapper.appendChild(leftVideoWrapper);
+    this.videoWrapper.appendChild(rightVideoWrapper);
 
     this.fullScreenWrapper.appendChild(this.createLoadingSpinner());
-    this.fullScreenWrapper.appendChild(wrapper);
+    this.fullScreenWrapper.appendChild(this.videoWrapper);
     if (this.config.mediaControls !== false) {
       this.fullScreenWrapper.appendChild(this.createMediaControls());
     }
@@ -371,7 +372,10 @@ export class Comparator {
   }
 
   private onQualityIconClick($event: MouseEvent, icon: HTMLDivElement, popup: HTMLDivElement): void {
-    popup.classList.toggle('visible');
+    if (!this.isSplitterSticked) {
+      this.videoWrapper.click();  
+    }
+    popup.classList.toggle('visible');	
     icon.classList.toggle('active');
   }
 
