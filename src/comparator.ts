@@ -13,7 +13,7 @@ export class Comparator {
 
   public leftPlayer: Player<PlayerClassType>;
   public rightPlayer: Player<PlayerClassType>;
-  
+
   private videoWrapper: HTMLDivElement;
   private leftPlayerData: IPlayerData = {};
   private rightPlayerData: IPlayerData = {};
@@ -30,7 +30,6 @@ export class Comparator {
     this.setInitialValues();
     this.createVideoComparator();
     this.initListeners();
-    return this;
   }
 
   public pause(): void {
@@ -71,7 +70,7 @@ export class Comparator {
   public toggleFullScreen(): void {
     this.container.dispatchEvent(this.fullscreenToggle);
     if (this.isFullScreen) {
-      screenfull.exit().catch(() => {
+      (screenfull as screenfull.Screenfull).exit().catch(() => {
         this.isFullScreen = !this.isFullScreen;
         this.toggleFullScreen();
       });
@@ -81,7 +80,7 @@ export class Comparator {
         // Screen API not available
       }
     } else {
-      screenfull.request(this.container).catch(() => {
+      (screenfull as screenfull.Screenfull).request(this.container).catch(() => {
         this.isFullScreen = !this.isFullScreen;
         this.toggleFullScreen();
       });
@@ -289,8 +288,6 @@ export class Comparator {
 
     this.leftPlayer = newPlayer(this.config.leftUrl, leftVideoWrapper.getElementsByTagName('video')[0], this.leftPlayerData.config);
     this.rightPlayer = newPlayer(this.config.rightUrl, rightVideoWrapper.getElementsByTagName('video')[0], this.rightPlayerData.config);
-
-    this.container.dispatchEvent(this.createdEvent);
   }
 
   private createVideoPlayer(player: 'left' | 'right'): HTMLDivElement {
@@ -373,9 +370,9 @@ export class Comparator {
 
   private onQualityIconClick($event: MouseEvent, icon: HTMLDivElement, popup: HTMLDivElement): void {
     if (!this.isSplitterSticked) {
-      this.videoWrapper.click();  
+      this.videoWrapper.click();
     }
-    popup.classList.toggle('visible');	
+    popup.classList.toggle('visible');
     icon.classList.toggle('active');
   }
 
@@ -495,8 +492,8 @@ export class Comparator {
    */
 
   private initListeners(): void {
-    if (screenfull && screenfull.on) {
-      screenfull.on('change', this.onFullscreenChange);
+    if (screenfull && (screenfull as screenfull.Screenfull).on) {
+      (screenfull as screenfull.Screenfull).on('change', this.onFullscreenChange);
     }
 
     this.leftPlayer.htmlPlayer.addEventListener('canplaythrough', this.onCanPlayThrough);
@@ -559,8 +556,8 @@ export class Comparator {
   }
 
   private destroyListeners(): void {
-    if (screenfull && screenfull.off) {
-      screenfull.off('change', this.onFullscreenChange);
+    if (screenfull && (screenfull as screenfull.Screenfull).off) {
+      (screenfull as screenfull.Screenfull).off('change', this.onFullscreenChange);
     }
 
     clearInterval(this.statsInterval);
@@ -630,6 +627,7 @@ export class Comparator {
   }
 
   private onLoadStart = (evt: Event): void => {
+    this.container.dispatchEvent(this.createdEvent);
     this.container.classList.add('loaded-metadata');
   }
 

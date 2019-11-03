@@ -6,6 +6,10 @@ This document will track the changes of this project, based on [Keep a Changelog
 - Add zoom feature.
 - Make mobile-aware the drag feature.
 
+## [0.0.8]
+### [Changed]
+- ```Created``` event now is bound to loadStart event of left video player.
+
 ## [0.0.7]
 ### [Added]
 - Dispatching event on fullscreen mode toggled.

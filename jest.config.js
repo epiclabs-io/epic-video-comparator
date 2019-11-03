@@ -76,7 +76,9 @@ module.exports = {
     // ],
   
     // A map from regular expressions to module names that allow to stub out resources with a single module
-    // moduleNameMapper: {},
+    moduleNameMapper: {
+        "\\.(css|less|sass|scss)$": require.resolve("./__mocks__/style-mock.js")
+    },
   
     // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
     // modulePathIgnorePatterns: [],
@@ -146,7 +148,7 @@ module.exports = {
     // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
     testPathIgnorePatterns: [
       "/node_modules/",
-      "/dist"
+      "/dist",
     ],
   
     // The regexp pattern or array of patterns that Jest uses to detect test files
@@ -184,4 +186,3 @@ module.exports = {
     // Whether to use watchman for file crawling
     // watchman: true,
   };
-  
